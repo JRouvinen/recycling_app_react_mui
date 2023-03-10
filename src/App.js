@@ -10,6 +10,8 @@ import MapView from "./components/UI/MapComponent";
 import CircularProgress from '@mui/material/CircularProgress';
 
 /* 
+Names
+
 1. EcoFinder
 2. ReCycleMe
 3. UpcycleNow
@@ -31,6 +33,16 @@ import CircularProgress from '@mui/material/CircularProgress';
 8. DumpsterDash
 9. ReUseRally
 10. EcoQuest
+
+ToDo:
+ - Add new focation (local)
+ - Edit existing location (local)
+ - Check user location at startup
+ - Define local path to local db and fetch data from there
+ - Define server address server db and fetch data from there
+ - Loadscreen when loading from server
+ - Styling
+
 
 */
 

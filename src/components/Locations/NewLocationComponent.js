@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, {  useState } from "react";
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
@@ -6,7 +6,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import { styled } from "@mui/material/styles";
 import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import Stack from '@mui/material/Stack';
+import ServiceFilter from "./ServiceFilterComponent";
 
 const Div = styled("div")(({ theme }) => ({
   ...theme.typography.button,
@@ -29,6 +31,80 @@ function SimpleDialog(props) {
     onClose(value);
   };
 
+  const type = [
+    'returpunkt',
+    'farlig',
+    'hyttepunkt',
+  ]
+
+  const locationtype = [
+    'container',
+    'centre',
+  ]
+
+  const services = [
+    {service:"Glass packaging"}, 
+  {service:"Metal packaging"} ,
+  {service:"Textiles, clothes and shoes"},
+  {service:"Dangerous waste"},
+  {service:"Corrugated cardboard"},
+  {service:"Beverage carton"},
+  {service:"Packaging carton"},
+  {service:"Paper"},
+  {service:"Cardboard, paper and cardboard"},
+  {service:"Plastic packaging"},
+  {service:"Residual waste"},
+  {service:"Mixed plastic"},
+  {service:"Plastic (not packaging)"},
+  {service:"Electrical and electronic waste"},
+  {service:"Garden waste"},
+  {service:"Batteries"},
+  {service:"Explosive waste"},
+  {service:"Medical waste"},
+  {service:"Small electronics"},
+  {service:"Combustible residual waste"},
+  {service:"Metal"},
+  {service:"Food waste"},
+  {service:"Items for reuse"},
+  {service:"Wood"},
+  {service:"Other"},
+  {service:"Small recreational boats"},
+  {service:"Construction and demolition waste"},
+  {service:"Large recreational boats without inboard engines"},
+  {service:"Marine waste"},
+  {service:"Asbestos"},
+  {service:"Window panes"},
+  {service:"Leisure boats with inboard motor"},
+  {service:"Styrofoam (EPS)"},
+  {service:"Landfill residue"},
+  {service:"Plaster"},
+  {service:"Coarse waste"},
+  {service:"Non-combustible waste"},
+  {service:"Impregnated wood"},
+  {service:"Inert waste"},
+  {service:"Iron and steel"},
+  {service:"Composite iron and steel"},
+  {service:"Tires"},
+  {service:"Pure masses"},
+  {service:"Compost soil"},
+  {service:"Bottles and cans with deposit"},
+  {service:"Cars"}
+  ];
+
+
+
+  const [newLocation, setnewLocation] = useState('');
+  const [newAddress, setnewAddress] = useState('');
+  const [newCounty, setnewCounty] = useState('');
+  const [newLatitude, setnewLatitude] = useState('');
+  const [newLongitude, setnewLongitude] = useState('');
+  const [newDescription, setnewDescription] = useState('');
+  const [newServices, setnewServices] = useState([services[0],services[1],services[5],services[6],services[8],services[9],services[21]]);
+  const [newType, setnewType] = useState('');
+  const [newLocationtype, setnewLocationtype] = useState('');
+
+  console.log('services')
+  console.log(newServices)
 
   return (
     <Dialog onClose={handleClose} open={open}>
@@ -47,45 +123,96 @@ function SimpleDialog(props) {
           required
           id="outlined-required"
           label="Location"
-          defaultValue="Hello World"
-          
+          value={newLocation}
+          onChange={setnewLocation}
         />
         <TextField
           required
           id="outlined-required"
           label="Address"
-          defaultValue="Hello World"
+          // defaultValue="Hello World"
+          value={newAddress}
+          onChange={setnewAddress}
         />
         <TextField
           required
           id="outlined-required"
           label="County"
-          defaultValue="Hello World"
+          // defaultValue="Hello World"
+          value={newCounty}
+          onChange={setnewCounty}
         />
         <TextField
           required
           id="outlined-required"
           label="Latitude"
-          defaultValue="Hello World"
+          // defaultValue="Hello World"
+          value={newLatitude}
+          onChange={setnewLatitude}
         />
         <TextField
           required
           id="outlined-required"
           label="Longitude"
-          defaultValue="Hello World"
+          // defaultValue="Hello World"
+          value={newLongitude}
+          onChange={setnewLongitude}
         />
-        <TextField
+        
+        </Box>
+        <br/>
+        <Box sx={{ m: 1, minWidth: 250, maxWidth: '100%' }}>
+        <ServiceFilter defservices={newServices} services={services} onServUpdate={setnewServices}/>
+        <br/>
+        <Stack spacing={1} direction="row">
+
+        <Autocomplete
+      disablePortal
+      id="combo-box-type"
+      options={type}
+      sx={{ width: 240 }}
+      renderInput={(params) => <TextField {...params} label="Type" />}
+      value={newType}
+      // onChange={setnewType}
+      onInputChange={(event, newInputValue) => {
+        setnewType(newInputValue);
+      }}
+    />
+    <br/>
+
+    <Autocomplete
+      disablePortal
+      id="combo-box-locationtype"
+      options={locationtype}
+      sx={{ width: 240 }}
+      renderInput={(params) => <TextField {...params} label="Location Type" />}
+      value={newLocationtype}
+      // onChange={setnewLocationtype}
+      onInputChange={(event, newInputValue) => {
+        setnewLocationtype(newInputValue);
+      }}
+    />
+    <br/>
+    </Stack>
+    <br/>
+    <Box sx={{  minWidth: 250, maxWidth: '100%' }}>
+    <TextField
           required
           id="outlined-required"
           label="Description"
-          defaultValue="Hello World"
+          multiline
+          maxRows={4}
+          // defaultValue="Hello World"
+          value={newDescription}
+          onChange={setnewDescription}
         />
-        <br/>
+    </Box>
+    <br/>
         <Stack spacing={2} direction="row">
       <Button variant="contained">Add new</Button>
       <Button variant="contained">Cancel</Button>
         </Stack>
-      </Box>
+        </Box>
     </Dialog>
   );
 }
@@ -108,6 +235,7 @@ export default function NewLocationDialog() {
     setOpen(false);
     // setSelectedValue(value);
   };
+
 
   return (
     <div>
