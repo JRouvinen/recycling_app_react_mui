@@ -9,6 +9,7 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Stack from '@mui/material/Stack';
 import ServiceFilter from "./ServiceFilterComponent";
+import NewLocationServices from "./NewLocationServiceSlector";
 
 const Div = styled("div")(({ theme }) => ({
   ...theme.typography.button,
@@ -99,12 +100,17 @@ function SimpleDialog(props) {
   const [newLatitude, setnewLatitude] = useState('');
   const [newLongitude, setnewLongitude] = useState('');
   const [newDescription, setnewDescription] = useState('');
-  const [newServices, setnewServices] = useState([services[0],services[1],services[5],services[6],services[8],services[9],services[21]]);
+  const [newServices, setnewServices] = useState();
   const [newType, setnewType] = useState('');
   const [newLocationtype, setnewLocationtype] = useState('');
 
-  console.log('services')
-  console.log(newServices)
+
+  const updateNewServices = (setservices) =>{
+    console.log('updateNewServices')
+    setnewServices = setservices;
+    console.log(newServices)
+
+  }
 
   return (
     <Dialog onClose={handleClose} open={open}>
@@ -162,7 +168,8 @@ function SimpleDialog(props) {
         </Box>
         <br/>
         <Box sx={{ m: 1, minWidth: 250, maxWidth: '100%' }}>
-        <ServiceFilter defservices={newServices} services={services} onServUpdate={setnewServices}/>
+        {/* <ServiceFilter defservices={newServices} services={services} onServUpdate={setnewServices}/> */}
+        <NewLocationServices services={services} setServices={updateNewServices}/>
         <br/>
         <Stack spacing={1} direction="row">
 
