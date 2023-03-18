@@ -8,20 +8,26 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 export default function NewLocationServices(props) {
-  const [value, setValue] = useState(props.services);
-  const [inputValue, setInputValue] = useState('');
-  console.log(props)
+  const [value, setValue] = useState();
+  const [inputValue, setInputValue] = useState();
 
-  const sendSetServices = (values) => {
-    console.log('sendSetServices');
-    console.log(values);
-    updateNewServices(values);
-  }
+
+  // const sendSetServices = (values) => {
+  //   console.log('sendSetServices');
+  //   console.log(values);
+  //   if (values !== '') {
+  //     const newValues = values
+  //     props.setServices(newValues);
+  //   }
+    
+  // }
 
   useEffect(()=>{
-		sendSetServices(value);
+    console.log(value)
+    const newValuesInput = value;
+    props.setServices(newValuesInput);
     
-	}, [inputValue, value])
+	}, [value, inputValue])
 
   return (
     <Autocomplete
@@ -35,7 +41,7 @@ export default function NewLocationServices(props) {
           <Checkbox
             icon={icon}
             checkedIcon={checkedIcon}
-            style={{ marginRight: 8 }}
+            style={{ offset: 8 }}
             checked={selected}
             
           />
@@ -48,11 +54,13 @@ export default function NewLocationServices(props) {
       )}
       onChange={(event, newValue) => {
         setValue(newValue);
+
       }}
       inputValue={inputValue}
         onInputChange={(event, newInputValue) => {
           setInputValue(newInputValue);
         }}
+      
     />
   );
 }
