@@ -6,10 +6,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import { styled } from "@mui/material/styles";
 import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
 import Stack from '@mui/material/Stack';
-import ServiceFilter from "./ServiceFilterComponent";
-import NewLocationServices from "./NewLocationServiceSlector";
 import NewLocationServiceList from "./NewLocationServiceList";
 import MenuItem from '@mui/material/MenuItem';
 
@@ -45,54 +42,6 @@ function SimpleDialog(props) {
     {value: '2',label:'centre'},
   ]
 
-  // const services = [
-  //   {service:"Glass packaging"}, 
-  // {service:"Metal packaging"} ,
-  // {service:"Textiles, clothes and shoes"},
-  // {service:"Dangerous waste"},
-  // {service:"Corrugated cardboard"},
-  // {service:"Beverage carton"},
-  // {service:"Packaging carton"},
-  // {service:"Paper"},
-  // {service:"Cardboard, paper and cardboard"},
-  // {service:"Plastic packaging"},
-  // {service:"Residual waste"},
-  // {service:"Mixed plastic"},
-  // {service:"Plastic (not packaging)"},
-  // {service:"Electrical and electronic waste"},
-  // {service:"Garden waste"},
-  // {service:"Batteries"},
-  // {service:"Explosive waste"},
-  // {service:"Medical waste"},
-  // {service:"Small electronics"},
-  // {service:"Combustible residual waste"},
-  // {service:"Metal"},
-  // {service:"Food waste"},
-  // {service:"Items for reuse"},
-  // {service:"Wood"},
-  // {service:"Other"},
-  // {service:"Small recreational boats"},
-  // {service:"Construction and demolition waste"},
-  // {service:"Large recreational boats without inboard engines"},
-  // {service:"Marine waste"},
-  // {service:"Asbestos"},
-  // {service:"Window panes"},
-  // {service:"Leisure boats with inboard motor"},
-  // {service:"Styrofoam (EPS)"},
-  // {service:"Landfill residue"},
-  // {service:"Plaster"},
-  // {service:"Coarse waste"},
-  // {service:"Non-combustible waste"},
-  // {service:"Impregnated wood"},
-  // {service:"Inert waste"},
-  // {service:"Iron and steel"},
-  // {service:"Composite iron and steel"},
-  // {service:"Tires"},
-  // {service:"Pure masses"},
-  // {service:"Compost soil"},
-  // {service:"Bottles and cans with deposit"},
-  // {service:"Cars"}
-  // ];
 
   const services = [
       "Glass packaging", 
@@ -159,8 +108,6 @@ function SimpleDialog(props) {
   const [countyValid, setCountyValid] = useState(true)
   const [latitudeValid, setLatitudeValid] = useState(true)
   const [longitudeValid, setLongitudeValid] = useState(true)
-  const [typeValid, setTypeValid] = useState(true)
-  const [locationTypeValid, setLocationTypeValid] = useState(true)
 
 
   const checkText = (text) => {
@@ -200,6 +147,39 @@ function SimpleDialog(props) {
   }
   }
 
+  const getDateString = () => {
+    let fulldate = new Date();
+    let day = fulldate.getDate();
+    let month = fulldate.getMonth() + 1;
+    let year = fulldate.getFullYear();
+    let hours = fulldate.getHours();
+    let minutes = fulldate.getMinutes();
+    let seconds = fulldate.getSeconds();
+    let millisec = fulldate.getMilliseconds();
+    let dateString =
+      year +
+      "/" +
+      month +
+      "/" +
+      day +
+      "-" +
+      hours +
+      ":" +
+      minutes +
+      ":" +
+      seconds +
+      "." +
+      millisec;
+  
+    // console.log(dateString);
+    return dateString;
+  };
+
+  const getId = () => {
+    const timetag = getDateString();
+    return Math.floor(Math.random() * (999999 - 0 + 1) ) + 0+'-'+timetag
+  }
+
   const addNewLocation = () => {
     console.log('addNewLocation')
     setLocationValid(checkText(newLocation));
@@ -207,11 +187,36 @@ function SimpleDialog(props) {
     setCountyValid(checkText(newLocation));
     setLatitudeValid(checkLat(newLatitude));
     setLongitudeValid(checkLon(newLongitude));
-    console.log(longitudeValid)
-  }
+    if (locationValid === true && addressValid === true && countyValid === true && latitudeValid === true && longitudeValid === true) {
+      const newLocationData = 
+        {id: getId(), 
+        lat: newLatitude, 
+        lon: newLongitude, 
+        amenity: 'recycling', 
+        sortere_ref: '', 
+        source: 'user', 
+        recycling_type: newLocationtype, 
+        recycling: newServices, 
+        location: newLocation, 
+        address: newAddress, 
+        description: newDescription, 
+        type: newType, 
+        county: newCounty, 
+        distance: 0, 
+        bookmark: 0, 
+        timetag: getDateString()}
+      
+      console.log(newLocationData)
+      fetch('http://localhost:8080/newLocation.json',
+      {method: 'POST',
+      body: JSON.stringify({newlocation: newLocation})
+
+      })
+      }
+
+    }
 
   const clearFields = () => {
-    console.log('clearFields')
     setnewLocation('');
     setnewAddress('');
     setnewCounty('');
@@ -221,11 +226,6 @@ function SimpleDialog(props) {
     setnewServices('');
     setnewType('');
     setnewLocationtype('');
-  }
-
-  const closeForm = () => {
-    console.log('closeForm')
-
   }
 
   const locationChangeHadler = (event) => {

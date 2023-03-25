@@ -11,29 +11,35 @@ import MCard from "@mui/material/Card";
 const MapView = (props) => {
     console.log('MapView');
     console.log(props)
+    const loc_data = props.locations;
+    const [old_loc_data, setOldLocData] = useState([]);
+    let pins = old_loc_data
     // console.log(props.mapboxtoken)
     const [popupInfo, setPopupInfo] = useState(null);
-    const pins = useMemo(
-      () =>
-        props.locations.map((location, id) => (
-          <Marker
-            key={`marker-${id}`}
-            longitude={location.lon}
-            latitude={location.lat}
-            anchor="bottom"
-            onClick={e => {
-              // If we let the click event propagates to the map, it will immediately close the popup
-              // with `closeOnClick: true`
-              e.originalEvent.stopPropagation();
-              setPopupInfo(location);
-            }}
-          >
-            <Pin />
-          </Marker>
-        )),
-      [props]
-    );
     
+      pins = useMemo(
+        () =>
+          props.locations.map((location, id) => (
+            <Marker
+              key={`marker-${id}`}
+              longitude={location.lon}
+              latitude={location.lat}
+              anchor="bottom"
+              onClick={e => {
+                // If we let the click event propagates to the map, it will immediately close the popup
+                // with `closeOnClick: true`
+                e.originalEvent.stopPropagation();
+                setPopupInfo(location);
+              }}
+            >
+              <Pin />
+            </Marker>
+          )),
+        [props]
+      );
+      
+    
+      
 
   return (
     

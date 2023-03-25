@@ -35,13 +35,17 @@ Names
 10. EcoQuest
 
 ToDo:
- - Add new focation (local)
- - Edit existing location (local)
+ - Add new focation (server) -> DONE
+  -> Add verification of server response
+ - Edit existing location (server)
  - Check user location at startup
  - Define local path to local db and fetch data from there
  - Define server address server db and fetch data from there
- - Loadscreen when loading from server
+ - Set different colors in map for local and server data
+ - Loadscreen when loading from server -> DONE
  - Styling
+ - Implement full navigation with directions
+ - Highlight selected row (location) from map
 
 
 */
@@ -53,13 +57,18 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const settingsCtx = useContext(SettingsContext);
-  const localDbs = settingsCtx.localDatabase
+  const [localDbs, setlocalDbs] = useState(true);
   const local_data = useContext(LocationsContext);
-  const [locations, setLocations] = useState([]);
+  let [locations, setLocations] = useState([]);
   const MAPBOX_TOKEN = 'pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw'; // Set your mapbox token here
   const [userLogged, setUserLogged] = useState(true);
 
   const getLocationData = () =>  {
+    if (locations.length > 0) {
+      console.log('locations delete')
+      locations = [];
+      console.log(locations)
+    }
     if (localDbs !== true) {
       fetchLocationsHandler();
     } else {
@@ -70,10 +79,13 @@ function App() {
 
   // Get location data from server
   async function fetchLocationsHandler(){
-    if (localDbs === true) {
+    if (localDbs !== true) {
       console.log('fecthing data from server')
+      locations = [];
       setIsLoading(true);
       setError(null);
+      console.log(locations)
+
       try{
         const response = await fetch('http://localhost:8080')
 
@@ -106,16 +118,33 @@ function App() {
       }  
     
   };
+
+  const changeServerHandler = () => {
+    console.log('changeserver')
+    if (localDbs === true) {
+      setlocalDbs(false);
+      getLocationData();
+    } else {
+      setlocalDbs(true);
+      getLocationData();
+
+    }
+  };
   
   useEffect(()=>{
 		getLocationData();
-    userLocationChangeHandler();
-	}, [localDbs,locationUpdate])
+    // userLocationChangeHandler();
+	}, [locationUpdate,SettingsContext])
   
   return (
     <>
+      <SettingsContext.Provider value={{
+        localDatabase: localDbs,
+        onChangeServer: changeServerHandler
+      }}>
       <TopBar userLogged={userLogged}/>
-      <HeaderComponent userLocation={userLocation} onUpdateLocation={userLocationChangeHandler} />
+      </SettingsContext.Provider>
+      {/* <HeaderComponent userLocation={userLocation} onUpdateLocation={userLocationChangeHandler} />  ---> wil be used when navigation is implemented*/} 
       
       {!isLoading && locations.length === 0 && <Card> No location data found...</Card>}
       {!isLoading && error && <Card>ERROR: {error}</Card>}

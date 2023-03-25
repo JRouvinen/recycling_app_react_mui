@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, {useContext} from 'react';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import List from '@mui/material/List';
@@ -9,6 +9,7 @@ import Switch from '@mui/material/Switch';
 import { styled } from "@mui/material/styles";
 import TextField from '@mui/material/TextField';
 import ColumnFilter from './ColumnFilterComponent';
+import SettingsContext from '../../store/settings-context';
 
 const Div = styled("div")(({ theme }) => ({
   ...theme.typography.button,
@@ -18,6 +19,10 @@ const Div = styled("div")(({ theme }) => ({
 
 
 function SimpleDialog(props) {
+  console.log('Settingsbtn')
+  const ctx = useContext(SettingsContext);
+  console.log(ctx)
+  
   // const { onClose, selectedValue, open } = props;
   const { onClose,  open } = props;
 
@@ -31,18 +36,24 @@ function SimpleDialog(props) {
     onClose(value);
   };
 
-  const [btn1_checked, setBtn1Checked] = React.useState(true);
+  const [btn1_checked, setBtn1Checked] = React.useState(ctx.localDatabase);
   const [btn2_checked, setBtn2Checked] = React.useState(false);
   const [info_txt, setInfoTxt] = React.useState('...')
+
   const handleChange1 = (event) => {
     setBtn1Checked(event.target.checked);
     setBtn2Checked(false);
+    ctx.onChangeServer();
+    // settingsCtx.setserverDatabase(false)
     setInfoTxt('Loading local database..')
 
   };
 const handleChange2 = (event) => {
-    setBtn2Checked(event.target.checked);
     setBtn1Checked(false);
+    setBtn2Checked(event.target.checked);
+    ctx.onChangeServer();
+    // settingsCtx.setlocalDatabase(false)
+    // settingsCtx.setserverDatabase(true)
     setInfoTxt('Connecting to server..')
 
   };

@@ -47,7 +47,7 @@ export default function DataTable2(props) {
         pageSize={10}
         rowsPerPageOptions={[10]}
         // checkboxSelection
-        rowSelection={"single"}
+        rowSelection={true}
         onSelectionChanged={onSelectionChanged}
         components={{
           Toolbar: GridToolbar,
