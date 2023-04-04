@@ -8,7 +8,9 @@ import SettingsContext from "./store/settings-context";
 import { Card } from "@mui/material";
 import MapView from "./components/UI/MapComponent";
 import CircularProgress from '@mui/material/CircularProgress';
-
+import { red } from '@mui/material/colors';
+import { green } from '@mui/material/colors';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 /* 
 Names
 
@@ -35,9 +37,9 @@ Names
 10. EcoQuest
 
 ToDo:
- - Add new focation (server) -> DONE
+ - Add new location (to server) -> DONE
   -> Add verification of server response
- - Edit existing location (server)
+ - Edit existing location (on server)
  - Check user location at startup
  - Define local path to local db and fetch data from there
  - Define server address server db and fetch data from there
@@ -47,8 +49,15 @@ ToDo:
  - Implement full navigation with directions
  - Highlight selected row (location) from map
 
-
 */
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: green[500],
+    },
+  },
+});
+
 
 function App() {
   // const [locations, setLocations] = useState(loadedlocations_actual);
@@ -137,7 +146,7 @@ function App() {
 	}, [locationUpdate,SettingsContext])
   
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <SettingsContext.Provider value={{
         localDatabase: localDbs,
         onChangeServer: changeServerHandler
@@ -152,6 +161,7 @@ function App() {
       {isLoading && <CircularProgress/>}
       {!isLoading && locations.length > 0 && <Table userlocation={userLocation} locations={locations}/>}
       {!isLoading && locations.length > 0 && <MapView locations={locations} userLocation={userLocation} mapboxtoken={MAPBOX_TOKEN}/>}
+      {/* {!isLoading && locations.length > 0 && <MapViewDirections locations={locations} userLocation={userLocation} mapboxtoken={MAPBOX_TOKEN}/>} */}
       
       
 {/*       
@@ -159,7 +169,7 @@ function App() {
       {!isLoading && error && <Card>ERROR: {error}</Card>}
       {isLoading && <Card>Loading...</Card>}
       {!isLoading && locations.length > 0 && <Table userlocation={userLocation} locations={locations}/>} */}
-    </>
+    </ThemeProvider>
   );
 }
 

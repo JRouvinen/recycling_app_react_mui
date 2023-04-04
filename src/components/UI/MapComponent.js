@@ -1,9 +1,10 @@
 import * as React from 'react';
 import {useState, useMemo} from 'react';
 import Map, {NavigationControl, Popup, ScaleControl, GeolocateControl, FullscreenControl, Marker} from 'react-map-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
 import Pin from './pin';
+import Pin_cont from './pin_container';
 import MCard from "@mui/material/Card";
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 // import CITIES from '../../.data/cities.json'; -> not needed for now
 
@@ -32,7 +33,10 @@ const MapView = (props) => {
                 setPopupInfo(location);
               }}
             >
-              <Pin />
+              {location.recycling_type === 'container' && <Pin_cont />}
+              {location.recycling_type !== 'container' && <Pin />}
+
+              {/* <Pin /> */}
             </Marker>
           )),
         [props]
