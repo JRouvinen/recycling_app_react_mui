@@ -70,7 +70,7 @@ function App() {
   const local_data = useContext(LocationsContext);
   let [locations, setLocations] = useState([]);
   const MAPBOX_TOKEN = 'pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw'; // Set your mapbox token here
-  const [userLogged, setUserLogged] = useState(true);
+  const [userLogged, setUserLogged] = useState(false);
 
   const getLocationData = () =>  {
     if (locations.length > 0) {
@@ -83,6 +83,15 @@ function App() {
     } else {
       setLocations(local_data.loadedlocations);
       setIsLoading(false);
+    }
+  }
+
+  const userLoggedChangeHandler = () => {
+    if (userLogged === false) {
+      setUserLogged(true);
+    }
+    else {
+      setUserLogged(false);
     }
   }
 
@@ -151,7 +160,7 @@ function App() {
         localDatabase: localDbs,
         onChangeServer: changeServerHandler
       }}>
-      <TopBar userLogged={userLogged}/>
+      <TopBar userLogged={userLogged}userLoggedChangeHandler={userLoggedChangeHandler}/>
       </SettingsContext.Provider>
       {/* <HeaderComponent userLocation={userLocation} onUpdateLocation={userLocationChangeHandler} />  ---> wil be used when navigation is implemented*/} 
       

@@ -65,7 +65,6 @@ const MapView = (props) => {
       <FullscreenControl position="top-left" />
       <NavigationControl position="top-left" />
       <ScaleControl />
-
       {pins}
 
       {popupInfo && (

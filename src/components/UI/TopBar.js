@@ -11,10 +11,13 @@ import logo from '../images/EcoNav_5.png';
 import { height } from '@mui/system';
 import { Card } from '@mui/material';
 import CardMedia from '@mui/material/CardMedia';
-export default function TopBar(props) {
 
+export default function TopBar(props) {
+  console.log('Topbar')
+  console.log(props)
   const handleClickOpen = () => {
     console.log('logging out')
+    props.userLoggedChangeHandler()
   };
 
   return (
@@ -49,7 +52,7 @@ export default function TopBar(props) {
           <SettingsDialog/>
           {/* <Button color="inherit">Settings</Button> */}
           {props.userLogged && <Button color="inherit" onClick={handleClickOpen}> Logout </Button>}
-          {!props.userLogged && <LogInDialog userLogged={props.userLogged}/>}
+          {!props.userLogged && <LogInDialog userLoggedChangeHandler={handleClickOpen}/>}
         </Toolbar>
       </AppBar>
     </Box>

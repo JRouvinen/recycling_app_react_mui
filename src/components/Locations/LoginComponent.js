@@ -4,11 +4,8 @@ import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
-import ServiceFilter from './ServiceFilterComponent';
-import Switch from '@mui/material/Switch';
 import { styled } from "@mui/material/styles";
 import TextField from '@mui/material/TextField';
-import ColumnFilter from './ColumnFilterComponent';
 
 const Div = styled("div")(({ theme }) => ({
   ...theme.typography.button,
@@ -18,9 +15,10 @@ const Div = styled("div")(({ theme }) => ({
 
 
 function SimpleDialog(props) {
+  console.log('Log in2')
+  console.log(props)
   // const { onClose, selectedValue, open } = props;
   const { onClose,  open } = props;
-
   const handleClose = () => {
     // onClose(selectedValue);
     onClose();
@@ -28,14 +26,29 @@ function SimpleDialog(props) {
   };
 
 
-  const [btn1_checked, setBtn1Checked] = React.useState(true);
-  const [btn2_checked, setBtn2Checked] = React.useState(false);
-  const [info_txt, setInfoTxt] = React.useState('...')
-  const handleChange1 = (event) => {
-    setBtn1Checked(event.target.checked);
-    setBtn2Checked(false);
-    setInfoTxt('Loading local database..')
+  const [userName, setUserName] = React.useState('');
+  const [userPswd, setUserPswd] = React.useState('');
+  const [info_txt, setInfoTxt] = React.useState('...');
+  const [validLogIn, setValidLogIn] = React.useState(true);
+  
 
+  const logInHandler = () => {
+    console.log('log In')
+    console.log(userName, userPswd)
+    if (userName ==='Tester320' && userPswd === 'DebugMaister1#2') {
+      props.userLoggedChangeHandler()
+    } else {
+      setValidLogIn(false);
+    }
+
+  };
+
+  const userNameChangeHandler = (event) => {
+    setUserName(event.target.value)
+  };
+
+  const userPswdChangeHandler = (event) => {
+    setUserPswd(event.target.value)
   };
 
   return (
@@ -44,25 +57,46 @@ function SimpleDialog(props) {
       
       
       <List sx={{ pt: 1 , m: 1}}>
-      <TextField
+      {!validLogIn && <TextField
+          error
+          id="outlined-required"
+          label="Username"
+          helperText="Wrong username"
+          value={userName}
+          onChange={userNameChangeHandler}
+        />}
+      {validLogIn && <TextField
           required
           id="outlined-required"
-          label="Login name"
-          defaultValue=""
-        />
+          label="Username"
+          value={userName}
+          onChange={userNameChangeHandler}
+        />}
         <br/>
 
         <br/>
-        <TextField
+        {!validLogIn && <TextField
+          error
+          id="outlined-password-input"
+          label="Password"
+          type="password"
+          helperText="Wrong password"
+          autoComplete="current-password"
+          value={userPswd}
+          onChange={userPswdChangeHandler}
+        />}
+        {validLogIn && <TextField
           id="outlined-password-input"
           label="Password"
           type="password"
           autoComplete="current-password"
-        />
+          value={userPswd}
+          onChange={userPswdChangeHandler}
+        />}
         <br/>
 
         <br/>
-      <Button variant="contained">Log in</Button>
+      <Button variant="contained" onClick={logInHandler}>Log in</Button>
       </List>
     </Dialog>
   );
@@ -74,7 +108,9 @@ SimpleDialog.propTypes = {
   // selectedValue: PropTypes.string.isRequired,
 };
 
-export default function LogInDialog() {
+export default function LogInDialog(props) {
+  console.log('Log in')
+  console.log(props)
   const [open, setOpen] = React.useState(false);
   // const [selectedValue, setSelectedValue] = React.useState(emails[1]);
 
@@ -100,6 +136,7 @@ export default function LogInDialog() {
         // selectedValue={selectedValue}
         open={open}
         onClose={handleClose}
+        userLoggedChangeHandler={props.userLoggedChangeHandler}
       />
     </div>
   );
