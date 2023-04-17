@@ -15,10 +15,22 @@ import CardMedia from '@mui/material/CardMedia';
 export default function TopBar(props) {
   console.log('Topbar')
   console.log(props)
-  const handleClickOpen = () => {
-    console.log('logging out')
+  
+  const userLoggingHandler = () => {
+    console.log('user logging')
     props.userLoggedChangeHandler()
   };
+
+  const adminLoggingHandler = () => {
+    console.log('admin logging')
+    props.adminLoggedChangeHandler()
+  };
+
+  const userLoggOutHandler = () => {
+    console.log('user logout')
+    props.userLogOutChangeHandler()
+  };
+
 
   return (
     <Card>
@@ -28,7 +40,7 @@ export default function TopBar(props) {
         <Toolbar>
         <CardMedia
         component="img"
-        sx={{ width: '8%' }}
+        sx={{ width: '5%' }}
         image={logo}
         alt='EcoNav-logo'
       />
@@ -49,10 +61,10 @@ export default function TopBar(props) {
           </Typography>
           
           {props.userLogged && <NewLocationDialog/>}
-          <SettingsDialog/>
+          <SettingsDialog adminLogged={props.adminLogged}/>
           {/* <Button color="inherit">Settings</Button> */}
-          {props.userLogged && <Button color="inherit" onClick={handleClickOpen}> Logout </Button>}
-          {!props.userLogged && <LogInDialog userLoggedChangeHandler={handleClickOpen}/>}
+          {props.userLogged && <Button color="inherit" onClick={userLoggOutHandler}> Logout </Button>}
+          {!props.userLogged && <LogInDialog userLoggedChangeHandler={userLoggingHandler} adminLoggedChangeHandler={adminLoggingHandler}/>}
         </Toolbar>
       </AppBar>
     </Box>

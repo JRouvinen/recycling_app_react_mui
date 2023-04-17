@@ -71,6 +71,7 @@ function App() {
   let [locations, setLocations] = useState([]);
   const MAPBOX_TOKEN = 'pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw'; // Set your mapbox token here
   const [userLogged, setUserLogged] = useState(false);
+  const [adminLogged, setAdminLogged] = useState(false);
 
   const getLocationData = () =>  {
     if (locations.length > 0) {
@@ -90,9 +91,21 @@ function App() {
     if (userLogged === false) {
       setUserLogged(true);
     }
-    else {
-      setUserLogged(false);
+    
+  }
+
+  const adminLoggedChangeHandler = () => {
+    if (adminLogged === false) {
+      setAdminLogged(true);
+      setUserLogged(true);
+
     }
+  }
+
+  const userLogOutChangeHandler = () => {
+    setAdminLogged(false);
+    setUserLogged(false);
+    
   }
 
   // Get location data from server
@@ -160,7 +173,7 @@ function App() {
         localDatabase: localDbs,
         onChangeServer: changeServerHandler
       }}>
-      <TopBar userLogged={userLogged}userLoggedChangeHandler={userLoggedChangeHandler}/>
+      <TopBar userLogged={userLogged} adminLogged={adminLogged} userLoggedChangeHandler={userLoggedChangeHandler} adminLoggedChangeHandler={adminLoggedChangeHandler} userLogOutChangeHandler={userLogOutChangeHandler}/>
       </SettingsContext.Provider>
       {/* <HeaderComponent userLocation={userLocation} onUpdateLocation={userLocationChangeHandler} />  ---> wil be used when navigation is implemented*/} 
       

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import PropTypes from "prop-types";
 import Button from "@mui/material/Button";
 import List from "@mui/material/List";
@@ -35,12 +35,13 @@ function SimpleDialog(props) {
     onClose(value);
   };
 
-  const [btn1_checked, setBtn1Checked] = React.useState(ctx.localDatabase);
-  const [btn2_checked, setBtn2Checked] = React.useState(false);
-  const [info_txt, setInfoTxt] = React.useState("...");
-  const [local_file, setLocalFile] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [loadedFile, setLoadedFile] = React.useState();
+  const [btn1_checked, setBtn1Checked] = useState(ctx.localDatabase);
+  const [btn2_checked, setBtn2Checked] = useState(false);
+  const [info_txt, setInfoTxt] = useState("...");
+  const [local_file, setLocalFile] = useState("sortere-mar19.osm");
+  const [server_sddr, setServerAddr] = useState("localhost:8080");
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadedFile, setLoadedFile] = useState('');
 
   const handleChange1 = (event) => {
     setBtn1Checked(event.target.checked);
@@ -58,12 +59,21 @@ function SimpleDialog(props) {
     setInfoTxt("Connecting to server..");
   };
 
-  const uploadHandle = (event) => {
-    setLoadedFile(event);
-    setLocalFile(event.target.value);
-    // let file_name_split = local_file.split("\\")
-    // console.log(file_name_split)
-  }
+  const uploadHandle = e => { //Needs to be fixed
+    // setLoadedFile(event);
+    // setLocalFile(event.target.value);
+    const fileReader = new FileReader();
+    fileReader.readAsText(e.target.loadedFile[0], "UTF-8");
+    fileReader.onload = e => {
+      console.log("event.target.result", e.target.result);
+      setLoadedFile(e.target.result);
+    };
+    
+  };
+
+  const serverChangeHandler = (event) => {
+    setServerAddr(event.target.value)
+  };
 
   return (
     <Dialog onClose={handleClose} open={open}>
@@ -99,7 +109,7 @@ function SimpleDialog(props) {
         <br />
         {!isLoading && (
           <Button
-            variant="contained" onClick={uploadHandle}
+            variant="contained" onChange={uploadHandle}
             component="label"
             sx={{ m: 1, minWidth: 50, maxWidth: 300 }}
           >
@@ -120,6 +130,29 @@ function SimpleDialog(props) {
           inputProps={{ "aria-label": "controlled" }}
         />
         <Div>Use server database</Div>
+        {!props.adminLogged && <TextField
+          id="outlined-read-only-input"
+          label="Remote server address"
+          value={server_sddr}
+          InputProps={{
+            readOnly: true,
+          }}
+          padding="dense"
+          sx={{ m: 1, minWidth: 250, maxWidth: 300 }}
+        />}
+        {props.adminLogged && <TextField
+          id="outlined-read-only-input"
+          label="Remote server address"
+          value={server_sddr}
+          InputProps={{
+            readOnly: false,
+          }}
+          padding="dense"
+          sx={{ m: 1, minWidth: 250, maxWidth: 300 }}
+          onChange={serverChangeHandler}
+
+        />}
+        <br/>
         <Switch
           checked={btn2_checked}
           onChange={handleChange2}
@@ -136,7 +169,7 @@ SimpleDialog.propTypes = {
   // selectedValue: PropTypes.string.isRequired,
 };
 
-export default function SettingsDialog() {
+export default function SettingsDialog(props) {
   const [open, setOpen] = React.useState(false);
   // const [selectedValue, setSelectedValue] = React.useState(emails[1]);
 
@@ -162,6 +195,7 @@ export default function SettingsDialog() {
         // selectedValue={selectedValue}
         open={open}
         onClose={handleClose}
+        adminLogged={props.adminLogged}
       />
     </div>
   );

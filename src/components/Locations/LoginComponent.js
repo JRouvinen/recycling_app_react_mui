@@ -36,6 +36,8 @@ function SimpleDialog(props) {
     console.log('log In')
     console.log(userName, userPswd)
     if (userName ==='Tester320' && userPswd === 'DebugMaister1#2') {
+      props.adminLoggedChangeHandler()
+    } else if (userName ==='user2023' && userPswd === '#TesterUser!') {
       props.userLoggedChangeHandler()
     } else {
       setValidLogIn(false);
@@ -136,7 +138,7 @@ export default function LogInDialog(props) {
         // selectedValue={selectedValue}
         open={open}
         onClose={handleClose}
-        userLoggedChangeHandler={props.userLoggedChangeHandler}
+        userLoggedChangeHandler={props.userLoggedChangeHandler} adminLoggedChangeHandler={props.adminLoggedChangeHandler}
       />
     </div>
   );
