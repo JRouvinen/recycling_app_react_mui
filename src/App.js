@@ -70,8 +70,8 @@ function App() {
   const local_data = useContext(LocationsContext);
   let [locations, setLocations] = useState([]);
   const MAPBOX_TOKEN = 'pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw'; // Set your mapbox token here
-  const [userLogged, setUserLogged] = useState(false);
-  const [adminLogged, setAdminLogged] = useState(false);
+  const [userLogged, setUserLogged] = useState(true);
+  const [adminLogged, setAdminLogged] = useState(true);
 
   const getLocationData = () =>  {
     if (locations.length > 0) {

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Button from "@mui/material/Button";
 import List from "@mui/material/List";
@@ -21,7 +21,8 @@ const Div = styled("div")(({ theme }) => ({
 function SimpleDialog(props) {
   console.log("Settingsbtn");
   const ctx = useContext(SettingsContext);
-  console.log(ctx);
+  // console.log(ctx);
+
 
   // const { onClose, selectedValue, open } = props;
   const { onClose, open } = props;
@@ -59,15 +60,13 @@ function SimpleDialog(props) {
     setInfoTxt("Connecting to server..");
   };
 
-  const uploadHandle = e => { //Needs to be fixed
-    // setLoadedFile(event);
-    // setLocalFile(event.target.value);
-    const fileReader = new FileReader();
-    fileReader.readAsText(e.target.loadedFile[0], "UTF-8");
-    fileReader.onload = e => {
-      console.log("event.target.result", e.target.result);
-      setLoadedFile(e.target.result);
-    };
+  const uploadHandle = (e) => { //Needs checks and warning if loaded file is not json and actual processing of the file if it is 
+    console.log('uploadHandle')
+    console.log(e)
+    setLoadedFile(e)
+    setLocalFile(e.name)
+
+    
     
   };
 
@@ -96,25 +95,31 @@ function SimpleDialog(props) {
         <ColumnFilter />
         <br />
         <TextField
+          
           id="outlined-read-only-input"
-          label="Local database file"
+          // label="Local database file"
           // defaultValue="Hello World"
           value={local_file}
-          InputProps={{
-            readOnly: true,
-          }}
+          // InputProps={{
+          //   readOnly: true,
+          // }}
           padding="dense"
           sx={{ m: 1, minWidth: 250, maxWidth: 300 }}
         />
         <br />
         {!isLoading && (
           <Button
-            variant="contained" onChange={uploadHandle}
+            variant="contained" 
             component="label"
             sx={{ m: 1, minWidth: 50, maxWidth: 300 }}
+            // onChange={uploadHandle}
+            // onChange={e => setLoadedFile(e.target.files[0])}
+            // onChange={e => setLoadedFile(e.target.files[0])}
+            onChange={e => uploadHandle(e.target.files[0])}
+
           >
             Upload
-            <input hidden multiple type="file" />
+            <input hidden accept="json/" type="file" id="select-json"/>
           </Button>
         )}
         {isLoading && (
