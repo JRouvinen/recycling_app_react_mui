@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { DataGrid, GridToolbar, gridVisibleColumnFieldsSelector } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar, gridVisibleColumnFieldsSelector, GridValueGetterParams } from "@mui/x-data-grid";
 
 const columns = [
   
@@ -32,7 +32,11 @@ export default function DataTable2(props) {
       console.log(gridRef);
     },
     [gridRef]);
+  const onCellClickHandle = () => {
+    console.log('cell click')
+    
 
+  }
   return (
     <div style={{ height: 600, width: "100%" }}>
       <DataGrid
@@ -49,6 +53,7 @@ export default function DataTable2(props) {
         // checkboxSelection
         rowSelection={true}
         onSelectionChanged={onSelectionChanged}
+        onCellClick={onCellClickHandle}
         components={{
           Toolbar: GridToolbar,
           
@@ -56,7 +61,7 @@ export default function DataTable2(props) {
         initialState={{
           columns: {
             columnVisibilityModel: {
-              // Hide columns status and traderName, the other columns will remain visible
+              // Hide columns, the other columns will remain visible
               id: false,
               type: false,
             },

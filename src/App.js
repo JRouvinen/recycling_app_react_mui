@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 // import Button from '@mui/material/Button';
 import Table from "./components/UI/TableComponent";
-import HeaderComponent from "./components/UI/HeaderComponent";
-import LocationsContext from "./store/locations-context";
+// import LocationsContext from "./store/locations-context";
+import LocationsContext_full from "./store/locations-context_full";
 import TopBar from "./components/UI/TopBar";
 import SettingsContext from "./store/settings-context";
 import { Card } from "@mui/material";
@@ -67,7 +67,7 @@ function App() {
   const [error, setError] = useState(null);
   const settingsCtx = useContext(SettingsContext);
   const [localDbs, setlocalDbs] = useState(true);
-  const local_data = useContext(LocationsContext);
+  const local_data = useContext(LocationsContext_full);
   let [locations, setLocations] = useState([]);
   const MAPBOX_TOKEN = 'pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw'; // Set your mapbox token here
   const [userLogged, setUserLogged] = useState(true);

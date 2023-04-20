@@ -11,6 +11,8 @@ import TextField from "@mui/material/TextField";
 import ColumnFilter from "./ColumnFilterComponent";
 import SettingsContext from "../../store/settings-context";
 import LoadingButton from "@mui/lab/LoadingButton";
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Divider from '@mui/material/Divider';
 
 const Div = styled("div")(({ theme }) => ({
   ...theme.typography.button,
@@ -36,37 +38,46 @@ function SimpleDialog(props) {
     onClose(value);
   };
 
-  const [btn1_checked, setBtn1Checked] = useState(ctx.localDatabase);
-  const [btn2_checked, setBtn2Checked] = useState(false);
+  const [db_checked, setDbChecked] = useState(ctx.localDatabase);
+  const [srv_checked, setSrvChecked] = useState(false);
   const [info_txt, setInfoTxt] = useState("...");
   const [local_file, setLocalFile] = useState("sortere-mar19.osm");
-  const [server_sddr, setServerAddr] = useState("localhost:8080");
+  const [server_addr, setServerAddr] = useState("localhost:8080");
   const [isLoading, setIsLoading] = useState(false);
   const [loadedFile, setLoadedFile] = useState('');
+  const [correctFile, setCorrectFile] = useState(true)
+  const [serverError, setServerError] = useState(false)
 
-  const handleChange1 = (event) => {
-    setBtn1Checked(event.target.checked);
-    setBtn2Checked(false);
-    ctx.onChangeServer();
+  const dbChangeHandle = (event) => {
+    setDbChecked(event.target.checked);
+    setSrvChecked(false);
+    // ctx.onChangeServer();
     // settingsCtx.setserverDatabase(false)
-    setInfoTxt("Loading local database..");
+    // setInfoTxt("Loading local database..");
   };
-  const handleChange2 = (event) => {
-    setBtn1Checked(false);
-    setBtn2Checked(event.target.checked);
-    ctx.onChangeServer();
+  const srvChangeHandle = (event) => {
+    setDbChecked(false);
+    setSrvChecked(event.target.checked);
+    // ctx.onChangeServer();
     // settingsCtx.setlocalDatabase(false)
     // settingsCtx.setserverDatabase(true)
-    setInfoTxt("Connecting to server..");
+    // setInfoTxt("Connecting to server..");
   };
 
   const uploadHandle = (e) => { //Needs checks and warning if loaded file is not json and actual processing of the file if it is 
     console.log('uploadHandle')
     console.log(e)
+    console.log(e.type)
     setLoadedFile(e)
     setLocalFile(e.name)
-
-    
+    if (e.type !== 'application/json') {
+      setCorrectFile(false)
+    } else {
+      setCorrectFile(true)
+      // e.PreventDefault()
+      const reader = new FileReader()
+      reader.readAsText(e)
+    }
     
   };
 
@@ -74,12 +85,25 @@ function SimpleDialog(props) {
     setServerAddr(event.target.value)
   };
 
+  const applyClickHandle = () => {
+    if (srv_checked === true && server_addr !== '') {
+      setServerError(false);
+      ctx.onChangeServer();
+      setInfoTxt("Connecting to server..");
+    } else if (server_addr === '') {
+        setServerError(true);
+    } else if (db_checked === true && correctFile === true) {
+      ctx.onChangeServer();
+      setInfoTxt("Loading local database..");
+    }
+    
+  }
+
   return (
     <Dialog onClose={handleClose} open={open}>
       <DialogTitle>Program settings</DialogTitle>
-
       <List sx={{ pt: 1 }}>
-        <TextField
+        {/* <TextField
           id="outlined-read-only-input"
           label="Info"
           // defaultValue="Hello World"
@@ -89,13 +113,29 @@ function SimpleDialog(props) {
           }}
           padding="dense"
           sx={{ m: 1, minWidth: 250, maxWidth: 300 }}
-        />
+        /> */}
         <br />
+        
+        <Divider />
         <br />
         <ColumnFilter />
         <br />
-        <TextField
-          
+        <Divider />
+        <Div>Use local database
+        <Switch
+          checked={db_checked}
+          onChange={dbChangeHandle}
+          inputProps={{ "aria-label": "controlled" }}
+        /></Div>
+        {!correctFile && <TextField
+          id="outlined-error-helper-text"
+          label="Error"
+          helperText="Incorrect file type."
+          value={local_file}
+          padding="dense"
+          sx={{ m: 1, minWidth: 250, maxWidth: 300 }}
+        />}
+        {correctFile && <TextField
           id="outlined-read-only-input"
           // label="Local database file"
           // defaultValue="Hello World"
@@ -105,7 +145,8 @@ function SimpleDialog(props) {
           // }}
           padding="dense"
           sx={{ m: 1, minWidth: 250, maxWidth: 300 }}
-        />
+        />}
+        
         <br />
         {!isLoading && (
           <Button
@@ -118,7 +159,7 @@ function SimpleDialog(props) {
             onChange={e => uploadHandle(e.target.files[0])}
 
           >
-            Upload
+            Upload database file
             <input hidden accept="json/" type="file" id="select-json"/>
           </Button>
         )}
@@ -128,27 +169,54 @@ function SimpleDialog(props) {
           </LoadingButton>
         )}
 
-        <Div>Use local database</Div>
+        
+        <Divider />
+
+        <Div>Use server database
         <Switch
-          checked={btn1_checked}
-          onChange={handleChange1}
+          checked={srv_checked}
+          onChange={srvChangeHandle}
           inputProps={{ "aria-label": "controlled" }}
         />
-        <Div>Use server database</Div>
-        {!props.adminLogged && <TextField
+        </Div>
+        {!props.adminLogged && !serverError &&<TextField
           id="outlined-read-only-input"
           label="Remote server address"
-          value={server_sddr}
+          value={server_addr}
           InputProps={{
             readOnly: true,
           }}
           padding="dense"
           sx={{ m: 1, minWidth: 250, maxWidth: 300 }}
         />}
-        {props.adminLogged && <TextField
+        {props.adminLogged && !serverError &&<TextField
           id="outlined-read-only-input"
           label="Remote server address"
-          value={server_sddr}
+          value={server_addr}
+          InputProps={{
+            readOnly: false,
+          }}
+          padding="dense"
+          sx={{ m: 1, minWidth: 250, maxWidth: 300 }}
+          onChange={serverChangeHandler}
+
+        />}
+        {!props.adminLogged && serverError &&<TextField
+          id="outlined-error-helper-text"
+          label="Error"
+          helperText="Incorrect entry."
+          value={server_addr}
+          InputProps={{
+            readOnly: true,
+          }}
+          padding="dense"
+          sx={{ m: 1, minWidth: 250, maxWidth: 300 }}
+        />}
+        {props.adminLogged && serverError &&<TextField
+          id="outlined-error-helper-text"
+          label="Error"
+          helperText="Incorrect entry."
+          value={server_addr}
           InputProps={{
             readOnly: false,
           }}
@@ -158,12 +226,17 @@ function SimpleDialog(props) {
 
         />}
         <br/>
-        <Switch
-          checked={btn2_checked}
-          onChange={handleChange2}
-          inputProps={{ "aria-label": "controlled" }}
-        />
+        
       </List>
+      <Divider />
+      <br/>
+
+      <ButtonGroup variant="contained" aria-label="outlined primary button group">
+      <Button variant="contained" onClick={applyClickHandle}>Apply</Button>
+      <Button variant="contained" onClick={handleClose}>Close</Button>
+      </ButtonGroup>
+      <br/>
+      
     </Dialog>
   );
 }
