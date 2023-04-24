@@ -48,6 +48,8 @@ ToDo:
  - Styling
  - Implement full navigation with directions
  - Highlight selected row (location) from map
+ - Draw only locations in the viewport? or
+ - Create advanced filters bar and folowing tools:set location lat/lon, draw closest 5 / 10 /25 / 50 locations
 
 */
 const theme = createTheme({

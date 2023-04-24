@@ -41,12 +41,11 @@ const MapView = (props) => {
           )),
         [props]
       );
-      
-    
-      
+        
 
   return (
     
+
     <MCard>
     <Map
       initialViewState={{
