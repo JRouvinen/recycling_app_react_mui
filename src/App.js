@@ -74,6 +74,7 @@ function App() {
   const MAPBOX_TOKEN = 'pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw'; // Set your mapbox token here
   const [userLogged, setUserLogged] = useState(true);
   const [adminLogged, setAdminLogged] = useState(true);
+  const [selectedID, setselectedID] = useState('');
 
   const getLocationData = () =>  {
     if (locations.length > 0) {
@@ -107,6 +108,14 @@ function App() {
   const userLogOutChangeHandler = () => {
     setAdminLogged(false);
     setUserLogged(false);
+    
+  }
+
+  const selectedIDChangeHandler = (selected) => {
+    setselectedID(selected);
+    console.log('seledtedID')
+    console.log(selectedID)
+
     
   }
 
@@ -183,8 +192,8 @@ function App() {
       {!isLoading && error && <Card>ERROR: {error}</Card>}
       {/* {isLoading && listView &&<Card>Loading...</Card>} */}
       {isLoading && <CircularProgress/>}
-      {!isLoading && locations.length > 0 && <Table userlocation={userLocation} locations={locations}/>}
-      {!isLoading && locations.length > 0 && <MapView locations={locations} userLocation={userLocation} mapboxtoken={MAPBOX_TOKEN}/>}
+      {!isLoading && locations.length > 0 && <Table userlocation={userLocation} locations={locations} selectedID={selectedID} setselectedID={setselectedID}/>}
+      {!isLoading && locations.length > 0 && <MapView locations={locations} userLocation={userLocation} mapboxtoken={MAPBOX_TOKEN} selectedID={selectedID}/>}
       {/* {!isLoading && locations.length > 0 && <MapViewDirections locations={locations} userLocation={userLocation} mapboxtoken={MAPBOX_TOKEN}/>} */}
       
       

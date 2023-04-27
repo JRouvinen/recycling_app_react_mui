@@ -47,6 +47,8 @@ const Table = (props) => {
     return dateString;
   };
   
+
+
   const calculateDistance = (location_data, userLocation) => {
     let userLocation_Lat = 0
     let userLocation_Lon = 0
@@ -98,27 +100,7 @@ const Table = (props) => {
       }           
     // filterByDistance(locationCtx);
   };
-  // const filteredDistances = locationCtx.filter((location) => {
-  //   if (distFilter === "All") {
-  //     return location.distance >= 0;
-      
-  //   } else {
-      
-  //     return location.distance <= parseInt(distFilter);
-  //   }
-    
-  // });
-  // const filterByDistance = (locationCtx, distFilter) => {
-  //   console.log('filterByDistance')
-  //   if (distFilter === "All") {
-  //         setFilteredDist(locationCtx.distance >= 0);
-  //         console.log(filteredDistances)
-  //       } else {  
-  //         setFilteredDist(locationCtx.distance <= parseInt(distFilter));
-  //         console.log(filteredDistances)
-
-  //       }
-  // }
+  
   useEffect(()=>{
     calculateDistance(location_data);
     // filterByDistance(props,locationCtx)
@@ -128,7 +110,7 @@ const Table = (props) => {
     <MCard>
       <Divider />
       {/* <DataTable locations={filteredDistances} /> */}
-      <DataTable2 locations={location_data} />
+      <DataTable2 locations={location_data} selectedID={props.selectedID} setselectedID={props.setselectedID}/>
     </MCard>
   );
 };
