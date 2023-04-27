@@ -7,10 +7,10 @@ import TopBar from "./components/UI/TopBar";
 import SettingsContext from "./store/settings-context";
 import { Card } from "@mui/material";
 import MapView from "./components/UI/MapComponent";
-import CircularProgress from '@mui/material/CircularProgress';
-import { red } from '@mui/material/colors';
-import { green } from '@mui/material/colors';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CircularProgress from "@mui/material/CircularProgress";
+import { red } from "@mui/material/colors";
+import { green } from "@mui/material/colors";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 /* 
 Names
 
@@ -60,7 +60,6 @@ const theme = createTheme({
   },
 });
 
-
 function App() {
   // const [locations, setLocations] = useState(loadedlocations_actual);
   let [userLocation, setUserLocation] = useState([0, 0]);
@@ -71,16 +70,17 @@ function App() {
   const [localDbs, setlocalDbs] = useState(true);
   const local_data = useContext(LocationsContext_full);
   let [locations, setLocations] = useState([]);
-  const MAPBOX_TOKEN = 'pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw'; // Set your mapbox token here
+  const MAPBOX_TOKEN =
+    "pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw"; // Set your mapbox token here
   const [userLogged, setUserLogged] = useState(true);
   const [adminLogged, setAdminLogged] = useState(true);
-  const [selectedID, setselectedID] = useState('');
+  const [selectedID, setselectedID] = useState("");
 
-  const getLocationData = () =>  {
+  const getLocationData = () => {
     if (locations.length > 0) {
-      console.log('locations delete')
+      console.log("locations delete");
       locations = [];
-      console.log(locations)
+      console.log(locations);
     }
     if (localDbs !== true) {
       fetchLocationsHandler();
@@ -88,116 +88,128 @@ function App() {
       setLocations(local_data.loadedlocations);
       setIsLoading(false);
     }
-  }
+  };
 
   const userLoggedChangeHandler = () => {
     if (userLogged === false) {
       setUserLogged(true);
     }
-    
-  }
+  };
 
   const adminLoggedChangeHandler = () => {
     if (adminLogged === false) {
       setAdminLogged(true);
       setUserLogged(true);
-
     }
-  }
+  };
 
   const userLogOutChangeHandler = () => {
     setAdminLogged(false);
     setUserLogged(false);
-    
-  }
+  };
 
   const selectedIDChangeHandler = (selected) => {
     setselectedID(selected);
-    console.log('seledtedID')
-    console.log(selectedID)
-
-    
-  }
+    console.log("seledtedID");
+    console.log(selectedID);
+  };
 
   // Get location data from server
-  async function fetchLocationsHandler(){
+  async function fetchLocationsHandler() {
     if (localDbs !== true) {
-      console.log('fecthing data from server')
+      console.log("fecthing data from server");
       locations = [];
       setIsLoading(true);
       setError(null);
-      console.log(locations)
+      console.log(locations);
 
-      try{
-        const response = await fetch('http://localhost:8080')
+      try {
+        const response = await fetch("http://localhost:8080");
 
         if (!response.ok) {
           throw new Error("Could't retrieve data from server!");
-          
         }
         const data = await response.json();
 
-        if (data.results.length > 0){
+        if (data.results.length > 0) {
           setLocations(data.results);
           setIsLoading(false);
-      }
+        }
       } catch (error) {
         setError(error.message);
         setIsLoading(false);
-
       }
       setIsLoading(false);
-      
     }
-    } 
+  }
 
   //Update user location on change
   const userLocationChangeHandler = (newUserLocation) => {
-
-      if (newUserLocation !== undefined) {
-        setUserLocation(newUserLocation);
-        setLocationUpdate(true);
-      }  
-    
+    if (newUserLocation !== undefined) {
+      setUserLocation(newUserLocation);
+      setLocationUpdate(true);
+    }
   };
 
   const changeServerHandler = () => {
-    console.log('changeserver')
+    console.log("changeserver");
     if (localDbs === true) {
       setlocalDbs(false);
       getLocationData();
     } else {
       setlocalDbs(true);
       getLocationData();
-
     }
   };
-  
-  useEffect(()=>{
-		getLocationData();
+
+  useEffect(() => {
+    getLocationData();
     // userLocationChangeHandler();
-	}, [locationUpdate,SettingsContext])
-  
+  }, [locationUpdate, SettingsContext]);
+
   return (
     <ThemeProvider theme={theme}>
-      <SettingsContext.Provider value={{
-        localDatabase: localDbs,
-        onChangeServer: changeServerHandler
-      }}>
-      <TopBar userLogged={userLogged} adminLogged={adminLogged} userLoggedChangeHandler={userLoggedChangeHandler} adminLoggedChangeHandler={adminLoggedChangeHandler} userLogOutChangeHandler={userLogOutChangeHandler}/>
+      <SettingsContext.Provider
+        value={{
+          localDatabase: localDbs,
+          onChangeServer: changeServerHandler,
+        }}
+      >
+        <TopBar
+          userLogged={userLogged}
+          adminLogged={adminLogged}
+          userLoggedChangeHandler={userLoggedChangeHandler}
+          adminLoggedChangeHandler={adminLoggedChangeHandler}
+          userLogOutChangeHandler={userLogOutChangeHandler}
+        />
       </SettingsContext.Provider>
-      {/* <HeaderComponent userLocation={userLocation} onUpdateLocation={userLocationChangeHandler} />  ---> wil be used when navigation is implemented*/} 
-      
-      {!isLoading && locations.length === 0 && <Card> No location data found...</Card>}
+      {/* <HeaderComponent userLocation={userLocation} onUpdateLocation={userLocationChangeHandler} />  ---> wil be used when navigation is implemented*/}
+
+      {!isLoading && locations.length === 0 && (
+        <Card> No location data found...</Card>
+      )}
       {!isLoading && error && <Card>ERROR: {error}</Card>}
       {/* {isLoading && listView &&<Card>Loading...</Card>} */}
-      {isLoading && <CircularProgress/>}
-      {!isLoading && locations.length > 0 && <Table userlocation={userLocation} locations={locations} selectedID={selectedID} setselectedID={setselectedID}/>}
-      {!isLoading && locations.length > 0 && <MapView locations={locations} userLocation={userLocation} mapboxtoken={MAPBOX_TOKEN} selectedID={selectedID}/>}
+      {isLoading && <CircularProgress />}
+      {!isLoading && locations.length > 0 && (
+        <Table
+          userlocation={userLocation}
+          locations={locations}
+          selectedID={selectedID}
+          setselectedID={setselectedID}
+        />
+      )}
+      {!isLoading && locations.length > 0 && (
+        <MapView
+          locations={locations}
+          userLocation={userLocation}
+          mapboxtoken={MAPBOX_TOKEN}
+          selectedID={selectedID}
+        />
+      )}
       {/* {!isLoading && locations.length > 0 && <MapViewDirections locations={locations} userLocation={userLocation} mapboxtoken={MAPBOX_TOKEN}/>} */}
-      
-      
-{/*       
+
+      {/*       
       {!isLoading && locations.length === 0 && <Card> No location data found...</Card>}
       {!isLoading && error && <Card>ERROR: {error}</Card>}
       {isLoading && <Card>Loading...</Card>}
