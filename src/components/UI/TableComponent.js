@@ -4,18 +4,17 @@ import MCard from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import FiltersContext from "../../store/filters-context";
 import DataTable2 from "../Locations/DataTable2";
+import { passFilterLogic } from "@mui/x-data-grid/internals";
 
 const Table = (props) => {
-  // let locationCtx = useContext(LocationsContext);
-  // locationCtx = locationCtx.loadedlocations;
   console.log("Table");
-  console.log(props);
+  //console.log(props);
   let location_data = useState(props.locations);
+  let locDataList = useState([]);
   const userLocation = useState(props.userlocation);
   const filterContext = useContext(FiltersContext);
-  // console.log(filterContext)
-  const distFilter = filterContext.filtDistance;
-  // console.log(distFilter)
+  const [locDataListIsempty, setlocDataListIsempty] = useState(true)
+  //const distFilter = filterContext.filtDistance;
 
   const getDateString = () => {
     let fulldate = new Date();
@@ -45,7 +44,10 @@ const Table = (props) => {
     return dateString;
   };
 
+  
+
   const calculateDistance = (location_data, userLocation) => {
+    console.log('calculate dist')
     let userLocation_Lat = 0;
     let userLocation_Lon = 0;
 
@@ -57,9 +59,23 @@ const Table = (props) => {
       const userLocation_Lon = userLocation[1];
     }
     for (let i = 0; i < location_data[0].length; i++) {
-      // if (locations[i].distance === 0) {
-      const lat1 = parseFloat(location_data[0][i].lat); //Recycling location lat and lon
-      const lon1 = parseFloat(location_data[0][i].lon);
+      let newLocationObj = {
+        id: "",
+        address: "",
+        amenity: "",
+        bookmark: "",
+        county: "",
+        description: "",
+        distance: "",
+        location: "",
+        recycling: "",
+        recycling_type: "",
+        sortere_ref: "",
+        timetag: "",
+        type: ""
+      }
+      const lat1 = parseFloat(location_data[0][i].geometry.coordinates[0]); //Recycling location lat and lon
+      const lon1 = parseFloat(location_data[0][i].geometry.coordinates[1]);
       let lat2 = parseFloat(userLocation_Lat); //User location lat and lon
       if (lat2 === 0) {
         lat2 = 59.911491;
@@ -86,29 +102,51 @@ const Table = (props) => {
       } else {
         dist_km = d.toFixed(2);
       }
-      location_data[0][i].distance = dist_km;
-      location_data[0][i].timetag = getDateString();
-      // console.log(filteredDistances[i])
-      // https://linuxhint.com/update-object-in-javascript/
-      // }
+      newLocationObj.id = location_data[0][i].properties.id
+      newLocationObj.address = location_data[0][i].properties.address
+      newLocationObj.amenity = location_data[0][i].properties.amenity
+      newLocationObj.bookmark = location_data[0][i].properties.bookmark
+      newLocationObj.county = location_data[0][i].properties.county
+      newLocationObj.description = location_data[0][i].properties.description
+      newLocationObj.distance = dist_km
+      newLocationObj.location = location_data[0][i].properties.location
+      newLocationObj.recycling = location_data[0][i].properties.recycling
+      newLocationObj.recycling_type = location_data[0][i].properties.recycling_type
+      newLocationObj.sortere_ref = location_data[0][i].properties.sortere_ref
+      newLocationObj.timetag = getDateString()
+      newLocationObj.type = location_data[0][i].properties.type
+      //commented out with geojson update
+      //location_data[0][i].properties.distance = dist_km;
+      //location_data[0][i].properties.timetag = getDateString();
+      //push updated date into list
+      locDataList.push(newLocationObj)
     }
-    // filterByDistance(locationCtx);
+    locDataList.shift();
+    locDataList.shift();
+    console.log('locDataList')
+    console.log(locDataList)
+    if (locDataList.length > 0) {
+      setlocDataListIsempty(false);
+    }
   };
 
   useEffect(() => {
     calculateDistance(location_data);
-    // filterByDistance(props,locationCtx)
-  }, [props]);
+  }, [location_data, calculateDistance, props]);
 
   return (
     <MCard>
       <Divider />
-      {/* <DataTable locations={filteredDistances} /> */}
-      <DataTable2
-        locations={location_data}
+      {!locDataListIsempty && <DataTable2
+        locations={locDataList}
         selectedID={props.selectedID}
         setselectedID={props.setselectedID}
-      />
+      />}
+      {locDataListIsempty && <DataTable2
+        locations={true}
+
+      />}
+      
     </MCard>
   );
 };

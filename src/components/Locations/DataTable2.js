@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, {useEffect} from "react";
 import {
   DataGrid,
   GridToolbar,
@@ -56,11 +56,13 @@ const columns = [
 ];
 
 export default function DataTable2(props) {
-  console.log("DataTable2");
-  console.log(props);
 
   const [selectedRows, setSelectedRows] = React.useState([]);
+  const [locationRows, setlocationRows] = React.useState([]);
 
+  //const locationRows = props.locations[0].map(myFunction)
+  
+  
   const CustomEmpty = () => <div>No data found</div>;
 
   const gridRef = React.useRef();
@@ -82,13 +84,20 @@ export default function DataTable2(props) {
     //setSelectedRows(selectedRows);
     //console.log(selectedRows)
   };
+
+  useEffect(() => {
+    setlocationRows(props.locations);
+  }, [props]);
+
+
   return (
     <div style={{ height: 600, width: "100%" }}>
-      <DataGrid
+      {props.locations == true && <CustomEmpty/>}
+      {props.locations != true && <DataGrid
         empty={<CustomEmpty />}
         // loading={true}
         ref={gridRef}
-        rows={props.locations[0]}
+        rows={locationRows}
         columns={columns}
         autoPageSize={true}
         disableColumnResize={false}
@@ -124,7 +133,8 @@ export default function DataTable2(props) {
             },
           },
         }}
-      />
+      />}
+      
     </div>
   );
 }

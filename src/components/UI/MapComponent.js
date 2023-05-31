@@ -7,22 +7,37 @@ import Map, {
   GeolocateControl,
   FullscreenControl,
   Marker,
+  Layer,
+  Source,
 } from "react-map-gl";
 import Pin from "./pin";
 import Pin_cont from "./pin_container";
 import Pin_sel from "./pin_selected";
 import MCard from "@mui/material/Card";
 import "mapbox-gl/dist/mapbox-gl.css";
+import {
+  clusterLayer,
+  clusterCountLayer,
+  unclusteredPointLayer,
+} from "./layers";
+
+import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 // import CITIES from '../../.data/cities.json'; -> not needed for now
 
 const MapView = (props) => {
   console.log("mapview");
+  // console.log(props.locations.features);
   const [locationData, setLocationData] = useState([]);
-  const [locationDataBase, setLocationDataBase] = useState(props.locations);
+  const [locationDataBase, setLocationDataBase] = useState(
+    props.locations.features
+  );
   const [old_loc_data, setOldLocData] = useState([]);
+  //const [geoJson_data, setgeoJson_data] = useState("https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson")
   let pins = old_loc_data;
-  // console.log(props.mapboxtoken)
+  //console.log(geoJson_data)
   const [popupInfo, setPopupInfo] = useState(null);
 
   const [viewState, setViewState] = React.useState({
@@ -31,15 +46,16 @@ const MapView = (props) => {
     zoom: 9,
     cooperativeGestures: true,
   });
-  console.log(locationData);
+  //console.log(locationData);
 
   const zoom_distances = {
     //distances: zoom level: distance in km
-    11: 15,
-    10: 45,
-    9: 75,
-    8: 100,
-    7: 200,
+    12: 2.5,
+    11: 5,
+    10: 10,
+    9: 15,
+    8: 30,
+    7: 60,
     6: 250,
     5: 300,
     4: 300,
@@ -48,24 +64,25 @@ const MapView = (props) => {
   };
 
   const calculateDistance = () => {
-    const zoom_level = viewState.zoom;
-    console.log(zoom_level);
+    const zoom_level = viewState.zoom.toFixed();
+    console.log("zoom level", zoom_level);
     const map_win_lat = viewState.latitude;
     const map_win_lon = viewState.longitude;
     let draw_distance = zoom_distances[zoom_level];
     let newArray = [];
 
-    if (zoom_level > 11) {
-      draw_distance = 10;
+    if (zoom_level > 12) {
+      draw_distance = 12;
     }
-    if (zoom_level < 5) {
-      draw_distance = 300;
+    if (zoom_level < 9) {
+      draw_distance = 0;
     }
+    // draw_distance = 10;
     console.log(draw_distance);
 
     for (let i = 0; i < locationDataBase.length; i++) {
-      const lat1 = parseFloat(locationDataBase[i].lat); //Recycling location lat and lon
-      const lon1 = parseFloat(locationDataBase[i].lon);
+      const lat1 = parseFloat(locationDataBase[i].geometry.coordinates[1]); //Recycling location lat and lon
+      const lon1 = parseFloat(locationDataBase[i].geometry.coordinates[0]);
       let lat2 = parseFloat(map_win_lat); //User location lat and lon
       if (lat2 === 0) {
         lat2 = 59.911491;
@@ -90,28 +107,26 @@ const MapView = (props) => {
       dist_km = d.toFixed(0);
       if (dist_km <= draw_distance) {
         let newObj = {
-          id: locationDataBase[i].id,
-          lat: locationDataBase[i].lat,
-          lon: locationDataBase[i].lon,
-          amenity: locationDataBase[i].amenity,
-          sortere_ref: locationDataBase[i].sortere_ref,
-          source: locationDataBase[i].source,
-          recycling_type: locationDataBase[i].recycling_type,
-          recycling: locationDataBase[i].recycling,
-          location: locationDataBase[i].location,
-          address: locationDataBase[i].address,
-          bookmark: locationDataBase[i].bookmark,
-          county: locationDataBase[i].county,
-          description: locationDataBase[i].description,
-          distance: locationDataBase[i].distance,
-          timetag: locationDataBase[i].timetag,
-          type: locationDataBase[i].type,
+          id: locationDataBase[i].properties.id,
+          lat: locationDataBase[i].geometry.coordinates[1],
+          lon: locationDataBase[i].geometry.coordinates[0],
+          amenity: locationDataBase[i].properties.amenity,
+          sortere_ref: locationDataBase[i].properties.sortere_ref,
+          // source: locationDataBase[i].source,
+          recycling_type: locationDataBase[i].properties.recycling_type,
+          recycling: locationDataBase[i].properties.recycling,
+          location: locationDataBase[i].properties.location,
+          address: locationDataBase[i].properties.address,
+          bookmark: locationDataBase[i].properties.bookmark,
+          county: locationDataBase[i].properties.county,
+          description: locationDataBase[i].properties.description,
+          // distance: locationDataBase[i].properties.distance,
+          distance: dist_km,
+          timetag: locationDataBase[i].properties.timetag,
+          type: locationDataBase[i].properties.type,
         };
-
         newArray.push(newObj);
       }
-
-      //locationData[i].timetag = getDateString();
 
       //https://linuxhint.com/update-object-in-javascript/
     }
@@ -121,7 +136,7 @@ const MapView = (props) => {
   useEffect(() => {
     calculateDistance();
     // filterByDistance(props,locationCtx)
-  }, [viewState, props.selectedID]);
+  }, [viewState, props]);
 
   pins = useMemo(
     () =>
@@ -157,20 +172,28 @@ const MapView = (props) => {
     [locationData]
   );
 
+  const pointClick = (e) => {
+    console.log("pointclick");
+    console.log(e);
+  };
+
   return (
     <MCard>
       <Map
         {...viewState}
         onMove={(evt) => setViewState(evt.viewState)}
         style={{ width: "100vw", height: "100vh" }}
-        mapStyle="mapbox://styles/mapbox/streets-v12"
+        // mapStyle="mapbox://styles/mapbox/streets-v12" //light mode
+        mapStyle="mapbox://styles/mapbox/dark-v11" //dark mode
         mapboxAccessToken={props.mapboxtoken}
         // ref={mapRef} onLoad={onMapLoad}
+        maxZoom={14}
       >
         <GeolocateControl position="top-left" />
         <FullscreenControl position="top-left" />
         <NavigationControl position="top-left" />
         <ScaleControl />
+
         {pins}
 
         {popupInfo && (
@@ -181,15 +204,28 @@ const MapView = (props) => {
             onClose={() => setPopupInfo(null)}
           >
             <div>
-              ID: {popupInfo.id}
-              Location: {popupInfo.location}, Address: {popupInfo.address} |
+              Distance: {popupInfo.distance} km <br />
+              ID: {popupInfo.id} <br />
+              Location: {popupInfo.location} <br />
+              Address: {popupInfo.address} <br />
               Recycling: {popupInfo.recycling.toString()} | Description:{" "}
-              {popupInfo.description} | Distance: {popupInfo.distance} km
+              {popupInfo.description}
             </div>
           </Popup>
         )}
+        <Source
+          id="recycling_locations"
+          type="geojson"
+          data={props.locations}
+          cluster={true}
+          clusterMaxZoom={18}
+          clusterRadius={20}
+        >
+          <Layer {...clusterLayer} />
+          <Layer {...clusterCountLayer} />
+          <Layer {...unclusteredPointLayer} />
+        </Source>
       </Map>
-      {/* <ControlPanel /> */}
     </MCard>
   );
 };

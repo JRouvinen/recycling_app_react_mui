@@ -50,6 +50,7 @@ ToDo:
  - Highlight selected row (location) from map
  - Draw only locations in the viewport? or
  - Create advanced filters bar and folowing tools:set location lat/lon, draw closest 5 / 10 /25 / 50 locations
+ - Change color of single recycling point
 
 */
 const theme = createTheme({
@@ -69,23 +70,27 @@ function App() {
   const settingsCtx = useContext(SettingsContext);
   const [localDbs, setlocalDbs] = useState(true);
   const local_data = useContext(LocationsContext_full);
-  let [locations, setLocations] = useState([]);
+  let [datalocations, setDataLocations] = useState([]);
+  let [maplocations, setMapLocations] = useState([]);
   const MAPBOX_TOKEN =
     "pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw"; // Set your mapbox token here
   const [userLogged, setUserLogged] = useState(true);
   const [adminLogged, setAdminLogged] = useState(true);
   const [selectedID, setselectedID] = useState("");
+  console.log('local_data');
+  console.log(local_data);
 
   const getLocationData = () => {
-    if (locations.length > 0) {
+    if (datalocations.length > 0) {
       console.log("locations delete");
-      locations = [];
-      console.log(locations);
+      datalocations = [];
+      maplocations = [];
     }
     if (localDbs !== true) {
       fetchLocationsHandler();
     } else {
-      setLocations(local_data.loadedlocations);
+      setMapLocations(local_data.loadedlocations[0]);
+      setDataLocations(local_data.loadedlocations[0].features);
       setIsLoading(false);
     }
   };
@@ -118,10 +123,10 @@ function App() {
   async function fetchLocationsHandler() {
     if (localDbs !== true) {
       console.log("fecthing data from server");
-      locations = [];
+      datalocations = [];
+      maplocations = [];
       setIsLoading(true);
       setError(null);
-      console.log(locations);
 
       try {
         const response = await fetch("http://localhost:8080");
@@ -132,7 +137,8 @@ function App() {
         const data = await response.json();
 
         if (data.results.length > 0) {
-          setLocations(data.results);
+          setDataLocations(data.results.features);
+          setMapLocations(data.results);
           setIsLoading(false);
         }
       } catch (error) {
@@ -185,23 +191,23 @@ function App() {
       </SettingsContext.Provider>
       {/* <HeaderComponent userLocation={userLocation} onUpdateLocation={userLocationChangeHandler} />  ---> wil be used when navigation is implemented*/}
 
-      {!isLoading && locations.length === 0 && (
+      {!isLoading && datalocations.length === 0 && (
         <Card> No location data found...</Card>
       )}
       {!isLoading && error && <Card>ERROR: {error}</Card>}
       {/* {isLoading && listView &&<Card>Loading...</Card>} */}
       {isLoading && <CircularProgress />}
-      {!isLoading && locations.length > 0 && (
+      {!isLoading && datalocations.length > 0 && (
         <Table
           userlocation={userLocation}
-          locations={locations}
+          locations={datalocations}
           selectedID={selectedID}
           setselectedID={setselectedID}
         />
       )}
-      {!isLoading && locations.length > 0 && (
+      {!isLoading && datalocations.length > 0 && (
         <MapView
-          locations={locations}
+          locations={maplocations}
           userLocation={userLocation}
           mapboxtoken={MAPBOX_TOKEN}
           selectedID={selectedID}
