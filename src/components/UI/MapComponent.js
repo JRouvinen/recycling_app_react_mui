@@ -14,13 +14,17 @@ import Pin from "./pin";
 import Pin_cont from "./pin_container";
 import Pin_sel from "./pin_selected";
 import MCard from "@mui/material/Card";
+import { Card } from "@mui/material";
 import "mapbox-gl/dist/mapbox-gl.css";
 import {
   clusterLayer,
   clusterCountLayer,
   unclusteredPointLayer,
 } from "./layers";
-
+import Box from '@mui/material/Box';
+import Slider from '@mui/material/Slider';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -29,25 +33,25 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 const MapView = (props) => {
   console.log("mapview");
-  // console.log(props.locations.features);
+  console.log(props);
   const [locationData, setLocationData] = useState([]);
   const [locationDataBase, setLocationDataBase] = useState(
     props.locations.features
   );
   const [old_loc_data, setOldLocData] = useState([]);
-  //const [geoJson_data, setgeoJson_data] = useState("https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson")
   let pins = old_loc_data;
-  //console.log(geoJson_data)
   const [popupInfo, setPopupInfo] = useState(null);
-
   const [viewState, setViewState] = React.useState({
     latitude: 61.0,
     longitude: 8.81,
     zoom: 9,
     cooperativeGestures: true,
   });
-  //console.log(locationData);
-
+  const [locationLayer, setlocationLayer] = React.useState(true);
+  const [markerLayer, setmarkerLayer] = React.useState(true);
+  const [mapDarkmode, setmapDarkmode] = React.useState(true);
+  const [markerLayerDrawDist, setmarkerLayerDrawDist] = React.useState(30);
+  
   const zoom_distances = {
     //distances: zoom level: distance in km
     12: 2.5,
@@ -63,22 +67,61 @@ const MapView = (props) => {
     2: 300,
   };
 
+  const changeMapDarkmodeHandler = () => {
+    if (mapDarkmode == true) {
+      setmapDarkmode(false)
+      console.log(mapDarkmode)
+    } else {
+      setmapDarkmode(true)
+      console.log(mapDarkmode)
+
+    }
+    
+  }
+
+  const changelocationLayerHandler = () => {
+    if (locationLayer == true) {
+      setlocationLayer(false)
+    } else {
+      setlocationLayer(true)
+
+    }
+    
+  }
+
+  const changemarkerLayerHandler = () => {
+    setmarkerLayerDrawDist(-1)
+    
+  }
+
+  const changemarkerLayerDrawDistHandler = (event) => {
+    if (markerLayer == true) {
+    setmarkerLayerDrawDist(event.target.value)
+
+    }
+  }
+
   const calculateDistance = () => {
-    const zoom_level = viewState.zoom.toFixed();
-    console.log("zoom level", zoom_level);
+    //Depricated code
+    // const zoom_level = viewState.zoom.toFixed();
+    // console.log("zoom level", zoom_level);
+
     const map_win_lat = viewState.latitude;
     const map_win_lon = viewState.longitude;
-    let draw_distance = zoom_distances[zoom_level];
-    let newArray = [];
+    // Replaced with 'markerLayerDrawDist'
+    //let draw_distance = zoom_distances[zoom_level];
+    let draw_distance = markerLayerDrawDist;
 
-    if (zoom_level > 12) {
-      draw_distance = 12;
-    }
-    if (zoom_level < 9) {
-      draw_distance = 0;
-    }
+    let newArray = [];
+    //Depricated code 
+    // if (zoom_level > 12) {
+    //   draw_distance = 12;
+    // }
+    // if (zoom_level < 9) {
+    //   draw_distance = 0;
+    // }
     // draw_distance = 10;
-    console.log(draw_distance);
+    //console.log(draw_distance);
 
     for (let i = 0; i < locationDataBase.length; i++) {
       const lat1 = parseFloat(locationDataBase[i].geometry.coordinates[1]); //Recycling location lat and lon
@@ -133,11 +176,17 @@ const MapView = (props) => {
     setLocationData(newArray);
   };
 
+  //Slider value text
+  function valuetext(value) {
+    return `${value} km`;
+  }
+
   useEffect(() => {
     calculateDistance();
     // filterByDistance(props,locationCtx)
-  }, [viewState, props]);
+  }, [viewState, props, markerLayerDrawDist, markerLayer,locationLayer]);
 
+  
   pins = useMemo(
     () =>
       //calculateDistance(),
@@ -170,23 +219,42 @@ const MapView = (props) => {
         </Marker>
       )),
     [locationData]
-  );
-
-  const pointClick = (e) => {
-    console.log("pointclick");
-    console.log(e);
-  };
+  );  
 
   return (
     <MCard>
-      <Map
+      <Card sx={{p: 2}}>
+      Map center - Latitude: {viewState.latitude.toFixed(4)} Longitude: {viewState.longitude.toFixed(4)} <br/> 
+      User location - Latitude: {props.userLocation[0].toFixed(4)} Longitude: {props.userLocation[1].toFixed(4)} <br/>
+      <FormControlLabel control={<Switch defaultChecked />} label="Location layer" onClick={changelocationLayerHandler}/> 
+      <FormControlLabel control={<Switch defaultChecked />} label="Marker layer" onClick={changemarkerLayerHandler}/> 
+      <FormControlLabel control={<Switch defaultChecked />} label="Dark mode" onClick={changeMapDarkmodeHandler}/> <br/>
+      Marker layer draw distance 
+      <Box sx={{ width: 300 }}>
+      <Slider
+        aria-label="Marker draw dist"
+        defaultValue={30}
+        getAriaValueText={valuetext}
+        valueLabelDisplay="auto"
+        step={5}
+        marks
+        min={10}
+        max={100}
+        onChange={changemarkerLayerDrawDistHandler}
+      />
+      
+    </Box>
+    
+      </Card>
+      {/* Dark mode map */}
+      {mapDarkmode && <Map
         {...viewState}
         onMove={(evt) => setViewState(evt.viewState)}
         style={{ width: "100vw", height: "100vh" }}
+
         // mapStyle="mapbox://styles/mapbox/streets-v12" //light mode
         mapStyle="mapbox://styles/mapbox/dark-v11" //dark mode
         mapboxAccessToken={props.mapboxtoken}
-        // ref={mapRef} onLoad={onMapLoad}
         maxZoom={14}
       >
         <GeolocateControl position="top-left" />
@@ -213,6 +281,7 @@ const MapView = (props) => {
             </div>
           </Popup>
         )}
+        {locationLayer &&
         <Source
           id="recycling_locations"
           type="geojson"
@@ -221,11 +290,63 @@ const MapView = (props) => {
           clusterMaxZoom={18}
           clusterRadius={20}
         >
+          
           <Layer {...clusterLayer} />
           <Layer {...clusterCountLayer} />
           <Layer {...unclusteredPointLayer} />
-        </Source>
-      </Map>
+        </Source>}
+      </Map>}
+      
+      {/* Light mode map */}
+      {!mapDarkmode && <Map
+        {...viewState}
+        onMove={(evt) => setViewState(evt.viewState)}
+        style={{ width: "100vw", height: "100vh" }}
+
+        mapStyle="mapbox://styles/mapbox/streets-v12" //light mode
+        //mapStyle="mapbox://styles/mapbox/dark-v11" //dark mode
+        mapboxAccessToken={props.mapboxtoken}
+        maxZoom={14}
+      >
+        <GeolocateControl position="top-left" />
+        <FullscreenControl position="top-left" />
+        <NavigationControl position="top-left" />
+        <ScaleControl />
+        {pins}
+        
+
+        {popupInfo && (
+          <Popup
+            anchor="top"
+            longitude={Number(popupInfo.lon)}
+            latitude={Number(popupInfo.lat)}
+            onClose={() => setPopupInfo(null)}
+          >
+            <div>
+              Distance: {popupInfo.distance} km <br />
+              ID: {popupInfo.id} <br />
+              Location: {popupInfo.location} <br />
+              Address: {popupInfo.address} <br />
+              Recycling: {popupInfo.recycling.toString()} | Description:{" "}
+              {popupInfo.description}
+            </div>
+          </Popup>
+        )}
+        {locationLayer &&
+        <Source
+          id="recycling_locations"
+          type="geojson"
+          data={props.locations}
+          cluster={true}
+          clusterMaxZoom={18}
+          clusterRadius={20}
+        >
+          
+          <Layer {...clusterLayer} />
+          <Layer {...clusterCountLayer} />
+          <Layer {...unclusteredPointLayer} />
+        </Source>}
+      </Map>}
     </MCard>
   );
 };
