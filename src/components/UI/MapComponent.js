@@ -335,7 +335,7 @@ const MapView = (props) => {
         </Source>}
         
   <Grid container justifyContent="flex-end">
-  <Card sx={{minHeight: 200, maxHeight: 500, minWidth: 200, maxWidth: 300}}>
+  <Card sx={{minHeight: '20%', maxHeight: '50%', minWidth: '20%', maxWidth: '50%'}}>
     <MatGeocoder
     inputPlaceholder="Search Address"
     accessToken={props.mapboxtoken}
