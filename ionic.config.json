@@ -1,0 +1,7 @@
+{
+  "name": "EcoNav",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

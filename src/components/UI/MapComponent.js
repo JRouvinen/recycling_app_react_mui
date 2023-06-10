@@ -25,11 +25,11 @@ import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
-import IconButton from "@mui/material/IconButton";
-import Stack from "@mui/material/Stack";
-import DeleteIcon from "@mui/icons-material/Delete";
-
+import Divider from '@mui/material/Divider';
+//Geocoder test import
+import MatGeocoder from 'react-mui-mapbox-geocoder'
 // import CITIES from '../../.data/cities.json'; -> not needed for now
+import Grid from '@mui/material/Grid';
 
 const MapView = (props) => {
   console.log("mapview");
@@ -181,6 +181,32 @@ const MapView = (props) => {
     return `${value} km`;
   }
 
+  //Geocoder consts
+
+  const geocoderApiOptions = {
+    country: 'no',
+    //proximity: {longitude: 8.000, latitude: 60.9197},
+    //bbox: [4.0000, 70.00, 58.0000, 31.0000]
+  }
+  
+  const onSelectHandler = (result) => {
+    console.log('onSelectHandler')
+    console.log(result.geometry)
+    const old_viewstate = viewState
+    const new_viewstate = {
+      latitude: result.geometry.coordinates[1],
+      longitude: result.geometry.coordinates[0],
+      zoom: 7,
+      cooperativeGestures: true,
+    }
+
+    setViewState(new_viewstate)
+
+  }
+
+
+  //End of Geocoder consts
+
   useEffect(() => {
     calculateDistance();
     // filterByDistance(props,locationCtx)
@@ -224,13 +250,14 @@ const MapView = (props) => {
   return (
     <MCard>
       <Card sx={{p: 2}}>
-      Map center - Latitude: {viewState.latitude.toFixed(4)} Longitude: {viewState.longitude.toFixed(4)} <br/> 
-      User location - Latitude: {props.userLocation[0].toFixed(4)} Longitude: {props.userLocation[1].toFixed(4)} <br/>
+      Map center: <br/> Latitude: {viewState.latitude.toFixed(4)} Longitude: {viewState.longitude.toFixed(4)} <br/> 
+      User location: <br/> Latitude: {props.userLocation[0].toFixed(4)} Longitude: {props.userLocation[1].toFixed(4)} <br/>
+      <Divider />
       <FormControlLabel control={<Switch defaultChecked />} label="Location layer" onClick={changelocationLayerHandler}/> 
       <FormControlLabel control={<Switch defaultChecked />} label="Marker layer" onClick={changemarkerLayerHandler}/> 
       <FormControlLabel control={<Switch defaultChecked />} label="Dark mode" onClick={changeMapDarkmodeHandler}/> <br/>
-      Marker layer draw distance 
-      <Box sx={{ width: 300 }}>
+      Marker layer draw distance: {markerLayerDrawDist} (km)
+      <Box sx={{ width: '30%' }}>
       <Slider
         aria-label="Marker draw dist"
         defaultValue={30}
@@ -244,7 +271,15 @@ const MapView = (props) => {
       />
       
     </Box>
-    
+    <Card>
+    <MatGeocoder
+    inputPlaceholder="Search Address"
+    accessToken={props.mapboxtoken}
+    onSelect={onSelectHandler}
+    autocomplete='true'
+    showLoader={true}
+    {...geocoderApiOptions}
+  /></Card>
       </Card>
       {/* Dark mode map */}
       {mapDarkmode && <Map
@@ -256,11 +291,14 @@ const MapView = (props) => {
         mapStyle="mapbox://styles/mapbox/dark-v11" //dark mode
         mapboxAccessToken={props.mapboxtoken}
         maxZoom={14}
+        
       >
+        
         <GeolocateControl position="top-left" />
         <FullscreenControl position="top-left" />
         <NavigationControl position="top-left" />
         <ScaleControl />
+        
 
         {pins}
 
@@ -295,6 +333,18 @@ const MapView = (props) => {
           <Layer {...clusterCountLayer} />
           <Layer {...unclusteredPointLayer} />
         </Source>}
+        
+  <Grid container justifyContent="flex-end">
+  <Card sx={{minHeight: 200, maxHeight: 500, minWidth: 200, maxWidth: 300}}>
+    <MatGeocoder
+    inputPlaceholder="Search Address"
+    accessToken={props.mapboxtoken}
+    onSelect={onSelectHandler}
+    autocomplete='true'
+    showLoader={true}
+    {...geocoderApiOptions}
+  /></Card>
+</Grid>
       </Map>}
       
       {/* Light mode map */}
@@ -347,6 +397,7 @@ const MapView = (props) => {
           <Layer {...unclusteredPointLayer} />
         </Source>}
       </Map>}
+      
     </MCard>
   );
 };

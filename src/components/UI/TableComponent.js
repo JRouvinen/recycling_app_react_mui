@@ -7,8 +7,8 @@ import DataTable2 from "../Locations/DataTable2";
 import { passFilterLogic } from "@mui/x-data-grid/internals";
 
 const Table = (props) => {
-  console.log("Table");
-  //console.log(props);
+  console.log("TableComp");
+  console.log(props);
   let location_data = useState(props.locations);
   let locDataList = useState([]);
   const userLocation = useState(props.userlocation);
@@ -115,6 +115,8 @@ const Table = (props) => {
       newLocationObj.sortere_ref = location_data[0][i].properties.sortere_ref
       newLocationObj.timetag = getDateString()
       newLocationObj.type = location_data[0][i].properties.type
+      newLocationObj.lat = location_data[0][i].geometry.coordinates[1]
+      newLocationObj.lon = location_data[0][i].geometry.coordinates[0]
       //commented out with geojson update
       //location_data[0][i].properties.distance = dist_km;
       //location_data[0][i].properties.timetag = getDateString();

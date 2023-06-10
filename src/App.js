@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 // import Button from '@mui/material/Button';
 import Table from "./components/UI/TableComponent";
 // import LocationsContext from "./store/locations-context";
@@ -8,7 +8,6 @@ import SettingsContext from "./store/settings-context";
 import { Card } from "@mui/material";
 import MapView from "./components/UI/MapComponent";
 import CircularProgress from "@mui/material/CircularProgress";
-import { red } from "@mui/material/colors";
 import { green } from "@mui/material/colors";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 /* 
@@ -67,7 +66,6 @@ function App() {
   let [locationUpdate, setLocationUpdate] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const settingsCtx = useContext(SettingsContext);
   const [localDbs, setlocalDbs] = useState(true);
   const local_data = useContext(LocationsContext_full);
   let [datalocations, setDataLocations] = useState([]);
@@ -80,7 +78,8 @@ function App() {
   console.log('local_data');
   console.log(local_data);
 
-  const getLocationData = () => {
+
+  const getLocationData = useCallback(() => {
     if (datalocations.length > 0) {
       console.log("locations delete");
       datalocations = [];
@@ -93,7 +92,8 @@ function App() {
       setDataLocations(local_data.loadedlocations[0].features);
       setIsLoading(false);
     }
-  };
+  }, [local_data]);
+
 
   const userLoggedChangeHandler = () => {
     if (userLogged === false) {
@@ -111,12 +111,6 @@ function App() {
   const userLogOutChangeHandler = () => {
     setAdminLogged(false);
     setUserLogged(false);
-  };
-
-  const selectedIDChangeHandler = (selected) => {
-    setselectedID(selected);
-    console.log("seledtedID");
-    console.log(selectedID);
   };
 
   // Get location data from server
@@ -171,7 +165,7 @@ function App() {
   useEffect(() => {
     getLocationData();
     // userLocationChangeHandler();
-  }, [locationUpdate, SettingsContext]);
+  }, [locationUpdate, getLocationData]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -197,14 +191,7 @@ function App() {
       {!isLoading && error && <Card>ERROR: {error}</Card>}
       {/* {isLoading && listView &&<Card>Loading...</Card>} */}
       {isLoading && <CircularProgress />}
-      {!isLoading && datalocations.length > 0 && (
-        <Table
-          userlocation={userLocation}
-          locations={datalocations}
-          selectedID={selectedID}
-          setselectedID={setselectedID}
-        />
-      )}
+      
       {!isLoading && datalocations.length > 0 && (
         <MapView
           locations={maplocations}
@@ -213,13 +200,14 @@ function App() {
           selectedID={selectedID}
         />
       )}
-      {/* {!isLoading && locations.length > 0 && <MapViewDirections locations={locations} userLocation={userLocation} mapboxtoken={MAPBOX_TOKEN}/>} */}
-
-      {/*       
-      {!isLoading && locations.length === 0 && <Card> No location data found...</Card>}
-      {!isLoading && error && <Card>ERROR: {error}</Card>}
-      {isLoading && <Card>Loading...</Card>}
-      {!isLoading && locations.length > 0 && <Table userlocation={userLocation} locations={locations}/>} */}
+      {!isLoading && datalocations.length > 0 && (
+        <Table
+          userlocation={userLocation}
+          locations={datalocations}
+          selectedID={selectedID}
+          setselectedID={setselectedID}
+        />
+      )}
     </ThemeProvider>
   );
 }
