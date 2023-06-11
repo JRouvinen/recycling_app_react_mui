@@ -11,8 +11,9 @@ import Map, {
   Source,
 } from "react-map-gl";
 import Pin from "./pin";
-import Pin_cont from "./pin_container";
-import Pin_sel from "./pin_selected";
+import PinCont from "./pin_container";
+import PinSel from "./pin_selected";
+import PinUser from "./pin_user";
 import MCard from "@mui/material/Card";
 import { Card } from "@mui/material";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -30,6 +31,7 @@ import Divider from '@mui/material/Divider';
 import MatGeocoder from 'react-mui-mapbox-geocoder'
 // import CITIES from '../../.data/cities.json'; -> not needed for now
 import Grid from '@mui/material/Grid';
+import Pin_user from "./pin_user";
 
 const MapView = (props) => {
   console.log("mapview");
@@ -45,30 +47,20 @@ const MapView = (props) => {
     latitude: 61.0,
     longitude: 8.81,
     zoom: 9,
-    cooperativeGestures: true,
+    //cooperativeGestures: true,
+  });
+  const [oldviewState, setOldViewState] = React.useState({
+    latitude: 0.0,
+    longitude: 0.0,
+    zoom: 0,
   });
   const [locationLayer, setlocationLayer] = React.useState(true);
   const [markerLayer, setmarkerLayer] = React.useState(true);
   const [mapDarkmode, setmapDarkmode] = React.useState(true);
   const [markerLayerDrawDist, setmarkerLayerDrawDist] = React.useState(30);
-  
-  const zoom_distances = {
-    //distances: zoom level: distance in km
-    12: 2.5,
-    11: 5,
-    10: 10,
-    9: 15,
-    8: 30,
-    7: 60,
-    6: 250,
-    5: 300,
-    4: 300,
-    3: 300,
-    2: 300,
-  };
 
   const changeMapDarkmodeHandler = () => {
-    if (mapDarkmode == true) {
+    if (mapDarkmode === true) {
       setmapDarkmode(false)
       console.log(mapDarkmode)
     } else {
@@ -80,7 +72,7 @@ const MapView = (props) => {
   }
 
   const changelocationLayerHandler = () => {
-    if (locationLayer == true) {
+    if (locationLayer === true) {
       setlocationLayer(false)
     } else {
       setlocationLayer(true)
@@ -95,86 +87,12 @@ const MapView = (props) => {
   }
 
   const changemarkerLayerDrawDistHandler = (event) => {
-    if (markerLayer == true) {
+    if (markerLayer === true) {
     setmarkerLayerDrawDist(event.target.value)
 
     }
   }
-
-  const calculateDistance = () => {
-    //Depricated code
-    // const zoom_level = viewState.zoom.toFixed();
-    // console.log("zoom level", zoom_level);
-
-    const map_win_lat = viewState.latitude;
-    const map_win_lon = viewState.longitude;
-    // Replaced with 'markerLayerDrawDist'
-    //let draw_distance = zoom_distances[zoom_level];
-    let draw_distance = markerLayerDrawDist;
-
-    let newArray = [];
-    //Depricated code 
-    // if (zoom_level > 12) {
-    //   draw_distance = 12;
-    // }
-    // if (zoom_level < 9) {
-    //   draw_distance = 0;
-    // }
-    // draw_distance = 10;
-    //console.log(draw_distance);
-
-    for (let i = 0; i < locationDataBase.length; i++) {
-      const lat1 = parseFloat(locationDataBase[i].geometry.coordinates[1]); //Recycling location lat and lon
-      const lon1 = parseFloat(locationDataBase[i].geometry.coordinates[0]);
-      let lat2 = parseFloat(map_win_lat); //User location lat and lon
-      if (lat2 === 0) {
-        lat2 = 59.911491;
-      }
-      let lon2 = parseFloat(map_win_lon);
-      if (lon2 === 0) {
-        lon2 = 10.757933;
-      }
-      let dist_km = 0.0;
-      // Calculations based on the ‘haversine’ formula to calculate the great-circle distance between two points –>
-      // the shortest distance over the earth’s surface – giving an ‘as-the-crow-flies’ distance between the points (ignoring any hills or other obstacles).
-      const R = 6371.0; // metres
-      const φ1 = (lat1 * Math.PI) / 180; // φ, λ in radians
-      const φ2 = (lat2 * Math.PI) / 180;
-      const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-      const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-      const a =
-        Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const d = R * c; // in kilometres
-      dist_km = d.toFixed(0);
-      if (dist_km <= draw_distance) {
-        let newObj = {
-          id: locationDataBase[i].properties.id,
-          lat: locationDataBase[i].geometry.coordinates[1],
-          lon: locationDataBase[i].geometry.coordinates[0],
-          amenity: locationDataBase[i].properties.amenity,
-          sortere_ref: locationDataBase[i].properties.sortere_ref,
-          // source: locationDataBase[i].source,
-          recycling_type: locationDataBase[i].properties.recycling_type,
-          recycling: locationDataBase[i].properties.recycling,
-          location: locationDataBase[i].properties.location,
-          address: locationDataBase[i].properties.address,
-          bookmark: locationDataBase[i].properties.bookmark,
-          county: locationDataBase[i].properties.county,
-          description: locationDataBase[i].properties.description,
-          // distance: locationDataBase[i].properties.distance,
-          distance: dist_km,
-          timetag: locationDataBase[i].properties.timetag,
-          type: locationDataBase[i].properties.type,
-        };
-        newArray.push(newObj);
-      }
-
-      //https://linuxhint.com/update-object-in-javascript/
-    }
-    setLocationData(newArray);
-  };
+    
 
   //Slider value text
   function valuetext(value) {
@@ -192,7 +110,6 @@ const MapView = (props) => {
   const onSelectHandler = (result) => {
     console.log('onSelectHandler')
     console.log(result.geometry)
-    const old_viewstate = viewState
     const new_viewstate = {
       latitude: result.geometry.coordinates[1],
       longitude: result.geometry.coordinates[0],
@@ -208,9 +125,73 @@ const MapView = (props) => {
   //End of Geocoder consts
 
   useEffect(() => {
-    calculateDistance();
+    //calculateDrawDistance();
     // filterByDistance(props,locationCtx)
-  }, [viewState, props, markerLayerDrawDist, markerLayer,locationLayer]);
+    const map_win_lat = viewState.latitude;
+    const map_win_lon = viewState.longitude;
+    let draw_distance = markerLayerDrawDist;
+    if (oldviewState.latitude !== map_win_lat || oldviewState.longitude !== map_win_lon || oldviewState.zoom !== viewState.zoom) {
+      setOldViewState({
+        latitude: map_win_lat,
+        longitude: map_win_lon,
+        zoom: viewState.zoom,})
+        let newArray = [];
+    
+      for (let i = 0; i < locationDataBase.length; i++) {
+        const lat1 = parseFloat(locationDataBase[i].geometry.coordinates[1]); //Recycling location lat and lon
+        const lon1 = parseFloat(locationDataBase[i].geometry.coordinates[0]);
+        let lat2 = parseFloat(map_win_lat); //User location lat and lon
+        if (lat2 === 0) {
+          lat2 = 59.911491;
+        }
+        let lon2 = parseFloat(map_win_lon);
+        if (lon2 === 0) {
+          lon2 = 10.757933;
+        }
+        let dist_km = 0.0;
+        // Calculations based on the ‘haversine’ formula to calculate the great-circle distance between two points –>
+        // the shortest distance over the earth’s surface – giving an ‘as-the-crow-flies’ distance between the points (ignoring any hills or other obstacles).
+        const R = 6371.0; // metres
+        const φ1 = (lat1 * Math.PI) / 180; // φ, λ in radians
+        const φ2 = (lat2 * Math.PI) / 180;
+        const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+        const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+        const a =
+          Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+          Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const d = R * c; // in kilometres
+        dist_km = d.toFixed(0);
+        if (dist_km <= draw_distance) {
+          let newObj = {
+            id: locationDataBase[i].properties.id,
+            lat: locationDataBase[i].geometry.coordinates[1],
+            lon: locationDataBase[i].geometry.coordinates[0],
+            amenity: locationDataBase[i].properties.amenity,
+            sortere_ref: locationDataBase[i].properties.sortere_ref,
+            // source: locationDataBase[i].source,
+            recycling_type: locationDataBase[i].properties.recycling_type,
+            recycling: locationDataBase[i].properties.recycling,
+            location: locationDataBase[i].properties.location,
+            address: locationDataBase[i].properties.address,
+            bookmark: locationDataBase[i].properties.bookmark,
+            county: locationDataBase[i].properties.county,
+            description: locationDataBase[i].properties.description,
+            // distance: locationDataBase[i].properties.distance,
+            distance: dist_km,
+            timetag: locationDataBase[i].properties.timetag,
+            type: locationDataBase[i].properties.type,
+          };
+          newArray.push(newObj);
+        }
+
+        //https://linuxhint.com/update-object-in-javascript/
+      }
+      setLocationData(newArray);
+    };
+      
+        
+  }, [props, markerLayerDrawDist, viewState, locationDataBase, oldviewState.latitude, oldviewState.longitude, oldviewState.zoom]);
 
   
   pins = useMemo(
@@ -233,18 +214,33 @@ const MapView = (props) => {
             {location.recycling_type !== 'container' && <Pin />}
             {props.selectedID == id && <Pin_sel />} */}
           {props.selectedID === location.id &&
-            location.recycling_type === "container" && <Pin_sel />}
+            location.recycling_type === "container" && <PinSel />}
           {props.selectedID === location.id &&
-            location.recycling_type !== "container" && <Pin_sel />}
+            location.recycling_type !== "container" && <PinSel />}
           {props.selectedID !== location.id &&
-            location.recycling_type === "container" && <Pin_cont />}
+            location.recycling_type === "container" && <PinCont />}
           {props.selectedID !== location.id &&
             location.recycling_type !== "container" && <Pin />}
 
           {/* <Pin /> */}
         </Marker>
       )),
-    [locationData]
+      <Marker
+          key={`marker-user`}
+          longitude={props.userLocation[1]}
+          latitude={props.userLocation[0]}
+          anchor="bottom"
+          onClick={(e) => {
+            // If we let the click event propagates to the map, it will immediately close the popup
+            // with `closeOnClick: true`
+            e.originalEvent.stopPropagation();
+            setPopupInfo('User Location');
+          }}
+        >
+
+          <PinUser />
+        </Marker>,
+    [locationData, props.selectedID]
   );  
 
   return (
@@ -271,15 +267,7 @@ const MapView = (props) => {
       />
       
     </Box>
-    <Card>
-    <MatGeocoder
-    inputPlaceholder="Search Address"
-    accessToken={props.mapboxtoken}
-    onSelect={onSelectHandler}
-    autocomplete='true'
-    showLoader={true}
-    {...geocoderApiOptions}
-  /></Card>
+    
       </Card>
       {/* Dark mode map */}
       {mapDarkmode && <Map

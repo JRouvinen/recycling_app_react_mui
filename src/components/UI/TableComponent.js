@@ -4,7 +4,6 @@ import MCard from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import FiltersContext from "../../store/filters-context";
 import DataTable2 from "../Locations/DataTable2";
-import { passFilterLogic } from "@mui/x-data-grid/internals";
 
 const Table = (props) => {
   console.log("TableComp");
@@ -44,9 +43,11 @@ const Table = (props) => {
     return dateString;
   };
 
-  
+  // useEffect(() => {
+  //   calculateDistance(location_data);
+  // }, [location_data, calculateDistance, props]);
 
-  const calculateDistance = (location_data, userLocation) => {
+  useEffect(() => {
     console.log('calculate dist')
     let userLocation_Lat = 0;
     let userLocation_Lon = 0;
@@ -77,13 +78,7 @@ const Table = (props) => {
       const lat1 = parseFloat(location_data[0][i].geometry.coordinates[0]); //Recycling location lat and lon
       const lon1 = parseFloat(location_data[0][i].geometry.coordinates[1]);
       let lat2 = parseFloat(userLocation_Lat); //User location lat and lon
-      if (lat2 === 0) {
-        lat2 = 59.911491;
-      }
       let lon2 = parseFloat(userLocation_Lon);
-      if (lon2 === 0) {
-        lon2 = 10.757933;
-      }
       let dist_km = 0.0;
       // Calculations based on the ‘haversine’ formula to calculate the great-circle distance between two points –>
       // the shortest distance over the earth’s surface – giving an ‘as-the-crow-flies’ distance between the points (ignoring any hills or other obstacles).
@@ -130,11 +125,8 @@ const Table = (props) => {
     if (locDataList.length > 0) {
       setlocDataListIsempty(false);
     }
-  };
-
-  useEffect(() => {
-    calculateDistance(location_data);
-  }, [location_data, calculateDistance, props]);
+  
+  }, [location_data, props, locDataList, userLocation]);
 
   return (
     <MCard>

@@ -51,6 +51,7 @@ ToDo:
  - Create advanced filters bar and folowing tools:set location lat/lon, draw closest 5 / 10 /25 / 50 locations
  - Change color of single recycling point
 
+
 */
 const theme = createTheme({
   palette: {
@@ -62,7 +63,7 @@ const theme = createTheme({
 
 function App() {
   // const [locations, setLocations] = useState(loadedlocations_actual);
-  let [userLocation, setUserLocation] = useState([0, 0]);
+  let [userLocation, setUserLocation] = useState([0,0]);;
   let [locationUpdate, setLocationUpdate] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -77,9 +78,35 @@ function App() {
   const [selectedID, setselectedID] = useState("");
   console.log('local_data');
   console.log(local_data);
+  console.log(userLocation)
 
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(success, error);
+    } else {
+      console.log("Geolocation not supported");
+    }
+    
+    function success(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+      setUserLocation([latitude,longitude]);
+      setLocationUpdate(true);
+    }
+    
+    function error() {
+      console.log("Unable to retrieve your location");
+    }
+  }
+
+  
 
   const getLocationData = useCallback(() => {
+    if (userLocation[0] === 0 && userLocation[1] === 0) {
+      getUserLocation()
+    }
+
     if (datalocations.length > 0) {
       console.log("locations delete");
       datalocations = [];
@@ -143,13 +170,13 @@ function App() {
     }
   }
 
-  //Update user location on change
-  const userLocationChangeHandler = (newUserLocation) => {
-    if (newUserLocation !== undefined) {
-      setUserLocation(newUserLocation);
-      setLocationUpdate(true);
-    }
-  };
+  //Update user location on change -> Mapview locate issue needs to be fixed
+  // const userLocationChangeHandler = (newUserLocation) => {
+  //   if (newUserLocation !== undefined) {
+  //     setUserLocation(newUserLocation);
+  //     setLocationUpdate(true);
+  //   }
+  // };
 
   const changeServerHandler = () => {
     console.log("changeserver");

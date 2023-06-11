@@ -4,14 +4,7 @@ import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
-import { styled } from "@mui/material/styles";
 import TextField from '@mui/material/TextField';
-
-const Div = styled("div")(({ theme }) => ({
-  ...theme.typography.button,
-  backgroundColor: theme.palette.background.paper,
-  padding: theme.spacing(1),
-}));
 
 
 function SimpleDialog(props) {
@@ -28,7 +21,6 @@ function SimpleDialog(props) {
 
   const [userName, setUserName] = React.useState('');
   const [userPswd, setUserPswd] = React.useState('');
-  const [info_txt, setInfoTxt] = React.useState('...');
   const [validLogIn, setValidLogIn] = React.useState(true);
   
 

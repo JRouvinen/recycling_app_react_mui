@@ -10,12 +10,7 @@ import Stack from '@mui/material/Stack';
 import NewLocationServiceList from "./NewLocationServiceList";
 import MenuItem from '@mui/material/MenuItem';
 
-const Div = styled("div")(({ theme }) => ({
-  ...theme.typography.button,
-  backgroundColor: theme.palette.background.paper,
-  padding: theme.spacing(1),
-}));
-
+// This whole component needs to be reviewed to reflect geoJSON format change!!!!!
 
 function SimpleDialog(props) {
   // const { onClose, selectedValue, open } = props;
@@ -25,10 +20,6 @@ function SimpleDialog(props) {
     // onClose(selectedValue);
     onClose();
 
-  };
-
-  const handleListItemClick = (value) => {
-    onClose(value);
   };
 
   const type = [
@@ -91,8 +82,6 @@ function SimpleDialog(props) {
     "Bottles and cans with deposit",
     "Cars"
   ];
-
-
 
   const [newLocation, setnewLocation] = useState('');
   const [newAddress, setnewAddress] = useState('');

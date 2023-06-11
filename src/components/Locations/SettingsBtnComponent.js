@@ -1,10 +1,9 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import PropTypes from "prop-types";
 import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
-import ServiceFilter from "./ServiceFilterComponent";
 import Switch from "@mui/material/Switch";
 import { styled } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
@@ -34,9 +33,6 @@ function SimpleDialog(props) {
     onClose();
   };
 
-  const handleListItemClick = (value) => {
-    onClose(value);
-  };
 
   const [db_checked, setDbChecked] = useState(ctx.localDatabase);
   const [srv_checked, setSrvChecked] = useState(false);
@@ -44,7 +40,7 @@ function SimpleDialog(props) {
   const [local_file, setLocalFile] = useState("sortere-mar19.osm");
   const [server_addr, setServerAddr] = useState("localhost:8080");
   const [isLoading, setIsLoading] = useState(false);
-  const [loadedFile, setLoadedFile] = useState('');
+  const [loadedFile, setLoadedFile] = useState(''); //This needs to be implemented!!!
   const [correctFile, setCorrectFile] = useState(true)
   const [serverError, setServerError] = useState(false)
 

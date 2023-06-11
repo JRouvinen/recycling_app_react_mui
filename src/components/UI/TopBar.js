@@ -8,7 +8,6 @@ import SettingsDialog from '../Locations/SettingsBtnComponent';
 import LogInDialog from '../Locations/LoginComponent';
 import NewLocationDialog from '../Locations/NewLocationComponent';
 import logo from '../images/EcoNav_5.png';
-import { height } from '@mui/system';
 import { Card } from '@mui/material';
 import CardMedia from '@mui/material/CardMedia';
 import IconButton from '@mui/material/IconButton';
