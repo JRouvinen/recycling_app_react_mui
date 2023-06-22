@@ -10,6 +10,7 @@ import MapView from "./components/UI/MapComponent";
 import CircularProgress from "@mui/material/CircularProgress";
 import { green } from "@mui/material/colors";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+
 /* 
 Names
 
@@ -53,15 +54,21 @@ ToDo:
 
 
 */
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: green[500],
-    },
-  },
-});
+
 
 function App() {
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: green[500],
+      },
+    },
+  });
+  const darkTheme = createTheme({
+    palette: {
+      mode: 'dark',
+    },
+  });
   // const [locations, setLocations] = useState(loadedlocations_actual);
   let [userLocation, setUserLocation] = useState([0,0]);;
   let [locationUpdate, setLocationUpdate] = useState(true);
@@ -76,9 +83,20 @@ function App() {
   const [userLogged, setUserLogged] = useState(true);
   const [adminLogged, setAdminLogged] = useState(true);
   const [selectedID, setselectedID] = useState("");
+  const [darkMode, setDarkMode] = useState(true)
+  const [mode, setMode] = React.useState('light');
   console.log('local_data');
   console.log(local_data);
   console.log(userLocation)
+
+  const colorMode = React.useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+      },
+    }),
+    [],
+  );
 
   const getUserLocation = () => {
     if (navigator.geolocation) {
@@ -140,6 +158,15 @@ function App() {
     setUserLogged(false);
   };
 
+  const darkModeChangeHandler = () => {
+    if (darkMode === true) {
+      setDarkMode(false);
+    } else {
+      setDarkMode(true);
+    }
+    
+  };
+
   // Get location data from server
   async function fetchLocationsHandler() {
     if (localDbs !== true) {
@@ -195,7 +222,8 @@ function App() {
   }, [locationUpdate, getLocationData]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
+    {!darkMode && <ThemeProvider theme={theme}>
       <SettingsContext.Provider
         value={{
           localDatabase: localDbs,
@@ -205,9 +233,11 @@ function App() {
         <TopBar
           userLogged={userLogged}
           adminLogged={adminLogged}
+          darkMode={darkMode}
           userLoggedChangeHandler={userLoggedChangeHandler}
           adminLoggedChangeHandler={adminLoggedChangeHandler}
           userLogOutChangeHandler={userLogOutChangeHandler}
+          darkModeChangeHandler={darkModeChangeHandler}
         />
       </SettingsContext.Provider>
       {/* <HeaderComponent userLocation={userLocation} onUpdateLocation={userLocationChangeHandler} />  ---> wil be used when navigation is implemented*/}
@@ -235,7 +265,51 @@ function App() {
           setselectedID={setselectedID}
         />
       )}
-    </ThemeProvider>
+    </ThemeProvider>}
+    {darkMode && <ThemeProvider theme={darkTheme}>
+      <SettingsContext.Provider
+        value={{
+          localDatabase: localDbs,
+          onChangeServer: changeServerHandler,
+        }}
+      >
+        <TopBar
+          userLogged={userLogged}
+          adminLogged={adminLogged}
+          darkMode={darkMode}
+          userLoggedChangeHandler={userLoggedChangeHandler}
+          adminLoggedChangeHandler={adminLoggedChangeHandler}
+          userLogOutChangeHandler={userLogOutChangeHandler}
+          darkModeChangeHandler={darkModeChangeHandler}
+        />
+      </SettingsContext.Provider>
+      {/* <HeaderComponent userLocation={userLocation} onUpdateLocation={userLocationChangeHandler} />  ---> wil be used when navigation is implemented*/}
+
+      {!isLoading && datalocations.length === 0 && (
+        <Card> No location data found...</Card>
+      )}
+      {!isLoading && error && <Card>ERROR: {error}</Card>}
+      {/* {isLoading && listView &&<Card>Loading...</Card>} */}
+      {isLoading && <CircularProgress />}
+      
+      {!isLoading && datalocations.length > 0 && (
+        <MapView
+          locations={maplocations}
+          userLocation={userLocation}
+          mapboxtoken={MAPBOX_TOKEN}
+          selectedID={selectedID}
+        />
+      )}
+      {!isLoading && datalocations.length > 0 && (
+        <Table
+          userlocation={userLocation}
+          locations={datalocations}
+          selectedID={selectedID}
+          setselectedID={setselectedID}
+        />
+      )}
+    </ThemeProvider>}
+    </>
   );
 }
 
