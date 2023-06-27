@@ -59,11 +59,8 @@ function App() {
   const local_data = useContext(LocationsContext_full);
   let [datalocations, setDataLocations] = useState([]);
   let [maplocations, setMapLocations] = useState([]);
-  const mapboxcontext = useContext(MapboxKeyContext);
-  const MAPBOX_TOKEN = (mapboxcontext.mapBoxKey);
-    //this needs to moved to own file, etc
-  // "pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw"; 
-  // Set your mapbox token here
+  const MAPBOX_TOKEN =
+    "pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw"; // Set your mapbox token here
   const [userLogged, setUserLogged] = useState(true);
   const [adminLogged, setAdminLogged] = useState(true);
   const [selectedID, setselectedID] = useState("");
