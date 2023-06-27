@@ -5,6 +5,7 @@ import Table from "./components/UI/TableComponent";
 import LocationsContext_full from "./store/locations-context_full";
 import TopBar from "./components/UI/TopBar";
 import SettingsContext from "./store/settings-context";
+import MapboxKeyContext from "./store/mapboxkey-context";
 import { Card } from "@mui/material";
 import MapView from "./components/UI/MapComponent";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -13,28 +14,8 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 /* 
 Names
+EcoNav -> My favourite!
 
-1. EcoFinder
-2. ReCycleMe
-3. UpcycleNow
-4. ReCyclingRoutes
-5. EarthMate
-6. GreenGo
-7. ReSourceIt
-8. ReUseItUp
-9. EcoNav -> My favourite!
-10. ReClaimIt
-
-1. ReFuseThis
-2. TrashCanTrot
-3. TheTrashTour
-4. ReCycleMania
-5. RePurposePal
-6. DumpsterDiver
-7. EcoExplorer -> Also good one!
-8. DumpsterDash
-9. ReUseRally
-10. EcoQuest
 
 ToDo:
  - Add new location (to server) -> DONE
@@ -74,12 +55,15 @@ function App() {
   let [locationUpdate, setLocationUpdate] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [localDbs, setlocalDbs] = useState(true);
+  const [localDbs, setlocalDbs] = useState(false);
   const local_data = useContext(LocationsContext_full);
   let [datalocations, setDataLocations] = useState([]);
   let [maplocations, setMapLocations] = useState([]);
-  const MAPBOX_TOKEN =
-    "pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw"; // Set your mapbox token here
+  const mapboxcontext = useContext(MapboxKeyContext);
+  const MAPBOX_TOKEN = (mapboxcontext.mapBoxKey);
+    //this needs to moved to own file, etc
+  // "pk.eyJ1Ijoiam1yb3V2aW5lbiIsImEiOiJjbGVqdWgwNjEwNHF0M29vZDEzdG1wb2l2In0.YVP1emAUkTgBtdGknfBVxw"; 
+  // Set your mapbox token here
   const [userLogged, setUserLogged] = useState(true);
   const [adminLogged, setAdminLogged] = useState(true);
   const [selectedID, setselectedID] = useState("");
@@ -133,8 +117,8 @@ function App() {
     if (localDbs !== true) {
       fetchLocationsHandler();
     } else {
-      setMapLocations(local_data.loadedlocations[0]);
-      setDataLocations(local_data.loadedlocations[0].features);
+      setMapLocations(local_data.loadedlocations);
+      setDataLocations(local_data.loadedlocations.features);
       setIsLoading(false);
     }
   }, [local_data]);
@@ -177,17 +161,25 @@ function App() {
       setError(null);
 
       try {
-        const response = await fetch("http://localhost:8080");
+        const response = await fetch("https://econav-no-default-rtdb.europe-west1.firebasedatabase.app/features.json?timeout=10s");
 
         if (!response.ok) {
           throw new Error("Could't retrieve data from server!");
         }
         const data = await response.json();
+        const serv_data = {
+          type: "FeatureCollection",
+          crs: {
+            type: "name",
+            properties: { name: "Serverdata:2023-06-28 16:40:25" }, //this line needs timetag
+          },
+          features: data};
 
-        if (data.results.length > 0) {
-          setDataLocations(data.results.features);
-          setMapLocations(data.results);
+        if (data.length > 0) {
+          setMapLocations(serv_data);
+          setDataLocations(data);
           setIsLoading(false);
+
         }
       } catch (error) {
         setError(error.message);
@@ -220,7 +212,7 @@ function App() {
     getLocationData();
     // userLocationChangeHandler();
   }, [locationUpdate, getLocationData]);
-
+  console.log("app darkmode", darkMode)
   return (
     <>
     {!darkMode && <ThemeProvider theme={theme}>
@@ -255,6 +247,7 @@ function App() {
           userLocation={userLocation}
           mapboxtoken={MAPBOX_TOKEN}
           selectedID={selectedID}
+          darkMode={darkMode}
         />
       )}
       {!isLoading && datalocations.length > 0 && (
@@ -298,6 +291,7 @@ function App() {
           userLocation={userLocation}
           mapboxtoken={MAPBOX_TOKEN}
           selectedID={selectedID}
+          darkMode={darkMode}
         />
       )}
       {!isLoading && datalocations.length > 0 && (
