@@ -60,16 +60,16 @@ function App() {
   let [datalocations, setDataLocations] = useState([]);
   let [maplocations, setMapLocations] = useState([]);
   const mapboxctx = useContext(MapboxKeyContext);
-  const MAPBOX_TOKEN = (MapboxKeyContext.mapBoxKey)
+  const MAPBOX_TOKEN = (mapboxctx.mapBoxKey)
   const [userLogged, setUserLogged] = useState(true);
   const [adminLogged, setAdminLogged] = useState(true);
   const [selectedID, setselectedID] = useState("");
   const [darkMode, setDarkMode] = useState(true)
   const [mode, setMode] = React.useState('light');
-  console.log('local_data');
-  console.log(local_data);
-  console.log(userLocation)
-
+  //console.log('local_data');
+  //console.log(local_data);
+  //console.log(userLocation)
+  console.log("TOKEN:", MAPBOX_TOKEN)
   const colorMode = React.useMemo(
     () => ({
       toggleColorMode: () => {

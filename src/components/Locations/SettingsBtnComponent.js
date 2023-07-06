@@ -45,8 +45,13 @@ function SimpleDialog(props) {
   const [serverError, setServerError] = useState(false)
 
   const dbChangeHandle = (event) => {
-    setDbChecked(event.target.checked);
-    setSrvChecked(false);
+    if (db_checked === false) {
+      setDbChecked(true);
+      setSrvChecked(false);
+    } else {
+      setDbChecked(false);
+      setSrvChecked(true);
+    }
     // ctx.onChangeServer();
     // settingsCtx.setserverDatabase(false)
     // setInfoTxt("Loading local database..");

@@ -15,15 +15,14 @@ import PinCont from "./pin_container";
 import PinSel from "./pin_selected";
 import PinUser from "./pin_user";
 import MCard from "@mui/material/Card";
-import { Card } from "@mui/material";
+import { Card, CardContent } from "@mui/material";
 import "mapbox-gl/dist/mapbox-gl.css";
 import {
   clusterLayer,
   clusterCountLayer,
-  unclusteredPointLayer,
+  //unclusteredPointLayer,
 } from "./layers";
-// import Box from "@mui/material/Box";
-// import Slider from "@mui/material/Slider";
+import PopupChipsArray from "./popupChipsComponent";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import Divider from "@mui/material/Divider";
@@ -36,15 +35,15 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Tooltip from "@mui/material/Tooltip";
+import Popover from "@mui/material/Popover";
 
 // Launching Mapcomponent shoots following warning into console:
 // WebGL warning: texImage: Alpha-premult and y-flip are deprecated for non-DOM-Element uploads.
 // --> No need to address at this state:
 // https://github.com/mapbox/mapbox-gl-js/issues/5292
-
 const MapView = (props) => {
-  //console.log("mapview");
-  //console.log(props);
+  //console.log("Mapview:", props);
   const [locationData, setLocationData] = useState([]);
   const [userLocationData, setUserLocationData] = useState([]);
   const [locationDataBase, setLocationDataBase] = useState(
@@ -193,10 +192,8 @@ const MapView = (props) => {
           // }
           if (mapCenterDist === true) {
             lon2 = parseFloat(map_win_lon);
-
           } else {
             lon2 = parseFloat(props.userLocation[1]); //User location lat and lon
-
           }
           // if (lon2 === 0) {
           //   lon2 = 10.757933;
@@ -215,7 +212,7 @@ const MapView = (props) => {
           const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
           const d = R * c; // in kilometres
           dist_km = d.toFixed(0);
-          if (dist_km <= draw_distance) {
+          if (dist_km <= draw_distance && locationDataBase[i].properties.recycling.length !== 0) {
             let newObj = {
               id: locationDataBase[i].properties.id,
               lat: locationDataBase[i].geometry.coordinates[1],
@@ -251,19 +248,20 @@ const MapView = (props) => {
           }
 
           //https://linuxhint.com/update-object-in-javascript/
-
         }
       }
       setLocationData(newArray);
 
       //Set user location into array
-      let newUserObj = [{
-        id: "userlocation",
-        lat: props.userLocation[0],
-        lon: props.userLocation[1],
-        type: "userlocation",
-        recycling_type: "userlocation",
-      }];
+      let newUserObj = [
+        {
+          id: "userlocation",
+          lat: props.userLocation[0],
+          lon: props.userLocation[1],
+          type: "userlocation",
+          recycling_type: "userlocation",
+        },
+      ];
       //newArray.push(newUserObj);
       //setLocationData(newArray);
       setUserLocationData(newUserObj);
@@ -284,7 +282,6 @@ const MapView = (props) => {
     () =>
       //calculateDistance(),
       locationData.map((location, id) => (
-        
         <Marker
           key={`marker-${id}`}
           longitude={location.lon}
@@ -330,11 +327,10 @@ const MapView = (props) => {
           }}
         >
           {location.recycling_type === "userlocation" && <PinUser />}
-          
         </Marker>
       )),
 
-    [locationData, props.userLocation]
+    [userLocationData]
   );
 
   return (
@@ -359,11 +355,13 @@ const MapView = (props) => {
               label="Map dark mode"
               onClick={changeMapDarkmodeHandler}
             />} */}
-            {!props.darkMode &&<FormControlLabel
-              control={<Switch />}
-              label="Map dark mode"
-              onClick={changeMapDarkmodeHandler}
-            />}
+            {!props.darkMode && (
+              <FormControlLabel
+                control={<Switch />}
+                label="Map dark mode"
+                onClick={changeMapDarkmodeHandler}
+              />
+            )}
             <FormControlLabel
               control={<Switch defaultChecked />}
               label="Calculate distance from map center"
@@ -380,21 +378,7 @@ const MapView = (props) => {
               onClick={changemarkerLayerHandler}
             />
             <br />
-            {/* Marker layer draw distance: {markerLayerDrawDist} (km)
-            <Box sx={{ width: "30%" }}>
-              <Slider
-                aria-label="Marker draw dist"
-                defaultValue={30}
-                getAriaValueText={valuetext}
-                valueLabelDisplay="auto"
-                step={5}
-                marks
-                min={10}
-                max={100}
-                onChange={changemarkerLayerDrawDistHandler}
-              />
-            </Box>
-            <br /> */}
+
             <FormControlLabel
               control={<Switch />}
               label="Show recycling centers"
@@ -415,7 +399,8 @@ const MapView = (props) => {
           onMove={(evt) => setViewState(evt.viewState)}
           style={{ width: "100vw", height: "100vh" }}
           // mapStyle="mapbox://styles/mapbox/streets-v12" //light mode
-          mapStyle="mapbox://styles/mapbox/dark-v11" //dark mode
+          //mapStyle="mapbox://styles/mapbox/dark-v11" //dark mode
+          mapStyle="mapbox://styles/mapbox/navigation-night-v1" //navigation dark mode
           mapboxAccessToken={props.mapboxtoken}
           maxZoom={14}
         >
@@ -435,14 +420,29 @@ const MapView = (props) => {
               onClose={() => setPopupInfo(null)}
               //style={{background: "darkgrey",color: "black"}}
             >
-              <div style={{ background: "darkgrey", color: "black" }}>
-                Distance: {popupInfo.distance} km <br />
-                ID: {popupInfo.id} <br />
-                Location: {popupInfo.location} <br />
-                Address: {popupInfo.address} <br />
-                Recycling: {popupInfo.recycling.toString()} <br /> Description:{" "}
-                {popupInfo.description}
-              </div>
+              <Card>
+                <CardContent>
+                  <Typography
+                    sx={{ fontSize: 14 }}
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    Distance: {popupInfo.distance} km <br />
+                    Location: {popupInfo.location} <br />
+                    Address: {popupInfo.address} <br />
+                  </Typography>
+                  <PopupChipsArray recycling={popupInfo.recycling} />
+                  <Typography
+                    sx={{ fontSize: 14 }}
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    Description: {popupInfo.description}
+                    <br />
+                    ID: {popupInfo.id}
+                  </Typography>
+                </CardContent>
+              </Card>
             </Popup>
           )}
           {userPopupInfo && (
@@ -454,10 +454,10 @@ const MapView = (props) => {
               //style={{background: "darkgrey",color: "black"}}
             >
               <div style={{ background: "darkgrey", color: "black" }}>
-                User location<br />
+                User location
+                <br />
                 Latitude: {userPopupInfo.lat} <br />
                 Longitude: {userPopupInfo.lon} <br />
-                
               </div>
             </Popup>
           )}
@@ -505,8 +505,9 @@ const MapView = (props) => {
         {...viewState}
         onMove={(evt) => setViewState(evt.viewState)}
         style={{ width: "100vw", height: "100vh" }}
-        mapStyle="mapbox://styles/mapbox/streets-v12" //light mode
+        // mapStyle="mapbox://styles/mapbox/streets-v12" //light mode
         //mapStyle="mapbox://styles/mapbox/dark-v11" //dark mode
+        mapStyle="mapbox://styles/mapbox/navigation-day-v1" //navigation day mode
         mapboxAccessToken={props.mapboxtoken}
         maxZoom={14}
       >
@@ -526,14 +527,29 @@ const MapView = (props) => {
             onClose={() => setPopupInfo(null)}
             //style={{background: "darkgrey",color: "black"}}
           >
-            <div style={{ background: "darkgrey", color: "black" }}>
-              Distance: {popupInfo.distance} km <br />
-              ID: {popupInfo.id} <br />
-              Location: {popupInfo.location} <br />
-              Address: {popupInfo.address} <br />
-              Recycling: {popupInfo.recycling.toString()} <br /> Description:{" "}
-              {popupInfo.description}
-            </div>
+            <Card>
+              <CardContent>
+                <Typography
+                  sx={{ fontSize: 14 }}
+                  color="text.secondary"
+                  gutterBottom
+                >
+                  Distance: {popupInfo.distance} km <br />
+                  Location: {popupInfo.location} <br />
+                  Address: {popupInfo.address} <br />
+                </Typography>
+                <PopupChipsArray recycling={popupInfo.recycling} />
+                <Typography
+                  sx={{ fontSize: 14 }}
+                  color="text.secondary"
+                  gutterBottom
+                >
+                  Description: {popupInfo.description}
+                  <br />
+                  ID: {popupInfo.id}
+                </Typography>
+              </CardContent>
+            </Card>
           </Popup>
         )}
         {userPopupInfo && (
@@ -545,10 +561,10 @@ const MapView = (props) => {
             //style={{background: "darkgrey",color: "black"}}
           >
             <div style={{ background: "darkgrey", color: "black" }}>
-              User location<br />
+              User location
+              <br />
               Latitude: {userPopupInfo.lat} <br />
               Longitude: {userPopupInfo.lon} <br />
-              
             </div>
           </Popup>
         )}
@@ -588,8 +604,7 @@ const MapView = (props) => {
           </Card>
         </Grid>
       </Map>
-    )}
-      
+      )}
     </MCard>
   );
 };
