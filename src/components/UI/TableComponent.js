@@ -6,8 +6,8 @@ import FiltersContext from "../../store/filters-context";
 import DataTable2 from "../Locations/DataTable2";
 
 const Table = (props) => {
-  console.log("TableComp");
-  console.log(props);
+  //console.log("TableComp");
+  //console.log(props);
   let location_data = useState(props.locations);
   let locDataList = useState([]);
   const userLocation = useState(props.userlocation);
@@ -48,7 +48,7 @@ const Table = (props) => {
   // }, [location_data, calculateDistance, props]);
 
   useEffect(() => {
-    console.log('calculate dist')
+    //console.log('calculate dist')
     let userLocation_Lat = 0;
     let userLocation_Lon = 0;
 
@@ -120,8 +120,8 @@ const Table = (props) => {
     }
     locDataList.shift();
     locDataList.shift();
-    console.log('locDataList')
-    console.log(locDataList)
+    //console.log('locDataList')
+    //console.log(locDataList)
     if (locDataList.length > 0) {
       setlocDataListIsempty(false);
     }

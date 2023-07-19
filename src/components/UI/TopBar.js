@@ -20,21 +20,21 @@ import { styled } from '@mui/material/styles';
 
 
 export default function TopBar(props) {
-  console.log('Topbar')
-  console.log(props)
+  //console.log('Topbar')
+  //console.log(props)
   
   const userLoggingHandler = () => {
-    console.log('user logging')
+    //console.log('user logging')
     props.userLoggedChangeHandler()
   };
 
   const adminLoggingHandler = () => {
-    console.log('admin logging')
+    //console.log('admin logging')
     props.adminLoggedChangeHandler()
   };
 
   const userLoggOutHandler = () => {
-    console.log('user logout')
+    //console.log('user logout')
     props.userLogOutChangeHandler()
   };
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -47,10 +47,10 @@ export default function TopBar(props) {
   };
 
   const changeDarkmodeHandler = () => {
-    console.log('dark mode change')
+    //console.log('dark mode change')
     props.darkModeChangeHandler();
   }
-  const label = { inputProps: { 'aria-label': 'Color switch demo' } };
+  //const label = { inputProps: { 'aria-label': 'Color switch demo' } };
 
   const MaterialUISwitch = styled(Switch)(({ theme }) => ({
     width: 62,

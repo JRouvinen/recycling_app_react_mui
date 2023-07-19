@@ -14,6 +14,7 @@ import Pin from "./pin";
 import PinCont from "./pin_container";
 import PinSel from "./pin_selected";
 import PinUser from "./pin_user";
+import PinMapCenter from "./pin_map_center";
 import MCard from "@mui/material/Card";
 import { Card, CardContent } from "@mui/material";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -35,8 +36,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Tooltip from "@mui/material/Tooltip";
-import Popover from "@mui/material/Popover";
+
 
 // Launching Mapcomponent shoots following warning into console:
 // WebGL warning: texImage: Alpha-premult and y-flip are deprecated for non-DOM-Element uploads.
@@ -46,12 +46,14 @@ const MapView = (props) => {
   //console.log("Mapview:", props);
   const [locationData, setLocationData] = useState([]);
   const [userLocationData, setUserLocationData] = useState([]);
+  const [mapCenterLocationData, setMapCenterLocationData] = useState([]);
   const [locationDataBase, setLocationDataBase] = useState(
     props.locations.features
   );
   const [old_loc_data, setOldLocData] = useState([]);
   let pins = old_loc_data;
   let user_pin = [];
+  let map_center_marker = [];
   const [popupInfo, setPopupInfo] = useState(null);
   const [userPopupInfo, setUserPopupInfo] = useState(null);
   const [viewState, setViewState] = React.useState({
@@ -265,6 +267,20 @@ const MapView = (props) => {
       //newArray.push(newUserObj);
       //setLocationData(newArray);
       setUserLocationData(newUserObj);
+
+      //Set map center marker into array
+      let newMapCentObj = [
+        {
+          id: "mapcenter",
+          lat: viewState.latitude,
+          lon: viewState.longitude,
+          type: "mapcenter",
+          recycling_type: "mapcenter",
+        },
+      ];
+      //newArray.push(newUserObj);
+      //setLocationData(newArray);
+      setMapCenterLocationData(newMapCentObj);
     }
   }, [
     props,
@@ -276,6 +292,8 @@ const MapView = (props) => {
     oldviewState.zoom,
     containerLayer,
     centerLayer,
+    mapCenterDist,
+    markerLayer
   ]);
   //Location Pin generation
   pins = useMemo(
@@ -306,7 +324,6 @@ const MapView = (props) => {
           {/* <Pin /> */}
         </Marker>
       )),
-
     [locationData, props.selectedID]
   );
   //UserLocation pin generation
@@ -332,7 +349,24 @@ const MapView = (props) => {
 
     [userLocationData]
   );
+  //Map center marker ganeration
+  map_center_marker = useMemo(
+    () =>
+      //calculateDistance(),
+      mapCenterLocationData.map((location, id) => (
+        <Marker
+          key={`marker-${id}`}
+          longitude={location.lon}
+          latitude={location.lat}
+          anchor="bottom"
+          
+        >
+          <PinMapCenter />
+        </Marker>
+      )),
 
+    [mapCenterLocationData]
+  );
   return (
     <MCard>
       <Card sx={{ p: 2 }}>
@@ -411,6 +445,7 @@ const MapView = (props) => {
 
           {pins}
           {user_pin}
+          {map_center_marker}
 
           {popupInfo && (
             <Popup

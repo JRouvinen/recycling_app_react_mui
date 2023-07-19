@@ -12,7 +12,7 @@ const HeaderComponent = (props) => {
     setEnteredLat(event.target.value);
     // updateLocationCall();
     setTimeout(() => {
-      console.log('latChangeHadler');
+      //console.log('latChangeHadler');
       // setEnteredLat(event.target.value);
     updateLocationCall();
     }, 1000);
@@ -28,7 +28,7 @@ const HeaderComponent = (props) => {
     setEnteredLon(event.target.value);
     // updateLocationCall();
     setTimeout(() => {
-      console.log('lonChangeHadler');
+      //console.log('lonChangeHadler');
       // setEnteredLon(event.target.value);
       updateLocationCall();
     }, 1000);
@@ -52,12 +52,12 @@ const HeaderComponent = (props) => {
     let oldLocationLon = enteredLon;
     if (oldLocationLat === enteredLat || oldLocationLon === enteredLon) {
       setTimeout(() => {
-        console.log('Calling location update1');
+        //console.log('Calling location update1');
         const newLatLon = [enteredLat, enteredLon];
         props.onUpdateLocation(newLatLon);
       }, 3000);
     } else {
-      console.log('Calling location update2');
+      //console.log('Calling location update2');
       const newLatLon = [enteredLat, enteredLon];
       props.onUpdateLocation(newLatLon);
     }

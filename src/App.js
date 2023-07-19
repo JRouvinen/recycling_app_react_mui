@@ -12,6 +12,28 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { green } from "@mui/material/colors";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCfQy2zTglswVT0veJDStmS7lmea4GDbJ8",
+  authDomain: "econav-no.firebaseapp.com",
+  databaseURL: "https://econav-no-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "econav-no",
+  storageBucket: "econav-no.appspot.com",
+  messagingSenderId: "658624208882",
+  appId: "1:658624208882:web:5de4a5f6f92407ca5ed56b",
+  measurementId: "G-9PC9VLCGFN"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 /* 
 Names
 EcoNav -> My favourite!
@@ -61,15 +83,15 @@ function App() {
   let [maplocations, setMapLocations] = useState([]);
   const mapboxctx = useContext(MapboxKeyContext);
   const MAPBOX_TOKEN = (mapboxctx.mapBoxKey)
-  const [userLogged, setUserLogged] = useState(true);
-  const [adminLogged, setAdminLogged] = useState(true);
+  const [userLogged, setUserLogged] = useState(false);
+  const [adminLogged, setAdminLogged] = useState(false);
   const [selectedID, setselectedID] = useState("");
   const [darkMode, setDarkMode] = useState(true)
   const [mode, setMode] = React.useState('light');
   //console.log('local_data');
   //console.log(local_data);
   //console.log(userLocation)
-  console.log("TOKEN:", MAPBOX_TOKEN)
+  //console.log("TOKEN:", MAPBOX_TOKEN)
   const colorMode = React.useMemo(
     () => ({
       toggleColorMode: () => {
@@ -89,7 +111,7 @@ function App() {
     function success(position) {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
-      console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+      //console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
       setUserLocation([latitude,longitude]);
       setLocationUpdate(true);
     }
@@ -107,7 +129,7 @@ function App() {
     }
 
     if (datalocations.length > 0) {
-      console.log("locations delete");
+      //console.log("locations delete");
       datalocations = [];
       maplocations = [];
     }
@@ -168,7 +190,7 @@ function App() {
           type: "FeatureCollection",
           crs: {
             type: "name",
-            properties: { name: "Serverdata:2023-06-28 16:40:25" }, //this line needs timetag
+            properties: { name: "Serverdata:2023-06-28 16:40:25" }, //TODO: this line needs timetag
           },
           features: data};
 
@@ -195,7 +217,7 @@ function App() {
   // };
 
   const changeServerHandler = () => {
-    console.log("changeserver");
+    //console.log("changeserver");
     if (localDbs === true) {
       setlocalDbs(false);
       getLocationData();
@@ -209,7 +231,7 @@ function App() {
     getLocationData();
     // userLocationChangeHandler();
   }, [locationUpdate, getLocationData]);
-  console.log("app darkmode", darkMode)
+  //console.log("app darkmode", darkMode)
   return (
     <>
     {!darkMode && <ThemeProvider theme={theme}>

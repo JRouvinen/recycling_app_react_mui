@@ -54,8 +54,8 @@ const columns = [
 ];
 
 export default function DataTable2(props) {
-  console.log('datatable2')
-  console.log(props)
+  //console.log('datatable2')
+  //console.log(props)
   //const [selectedRows, setSelectedRows] = React.useState([]);
   const [locationRows, setlocationRows] = React.useState([]);
 
@@ -67,8 +67,8 @@ export default function DataTable2(props) {
   const gridRef = React.useRef();
 
   const onCellClickHandle = (ids) => {
-    console.log("cell click");
-    console.log(ids.id);
+    //console.log("cell click");
+    //console.log(ids.id);
     props.setselectedID(ids.id);
     
   };
